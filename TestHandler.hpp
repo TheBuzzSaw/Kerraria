@@ -4,13 +4,14 @@
 #include "WindowEventHandler.hpp"
 #include "Matrix4x4.hpp"
 #include <SDL_opengl.h>
+#include <vector>
 
 class TestHandler : public WindowEventHandler
 {
     Matrix4x4F _projectionMatrix;
-    GLfloat _vertices[6];
     float _rotation = 0.0f;
     GLuint _texture;
+    std::vector<GLfloat> _vertices;
 
 public:
     TestHandler();

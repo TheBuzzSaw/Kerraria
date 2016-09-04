@@ -21,6 +21,8 @@ void WindowEventHandler::SetUpdatesPerSecond(int updatesPerSecond)
 void WindowEventHandler::Run(SDL_Window* window)
 {
     _window = window;
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
     OnOpen();
 
     int w;

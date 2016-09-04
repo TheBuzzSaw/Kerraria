@@ -1,20 +1,34 @@
 #include "TestHandler.hpp"
 #include <SDL_image.h>
+#include <utility>
 using namespace std;
 
 static constexpr auto PixelFormat = SDL_PIXELFORMAT_ABGR8888;
 
 static const GLenum TexParams[] = {
-    GL_TEXTURE_WRAP_S, GL_REPEAT,
-    GL_TEXTURE_WRAP_T, GL_REPEAT,
-    GL_TEXTURE_MAG_FILTER, GL_LINEAR,
-    GL_TEXTURE_MIN_FILTER, GL_LINEAR,
-    0 };
+    GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE,
+    GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE,
+    GL_TEXTURE_MAG_FILTER, GL_NEAREST,
+    GL_TEXTURE_MIN_FILTER, GL_NEAREST,
+    0, 0 };
 
-void SetParams(const GLenum* params)
+static void SetParams(const GLenum* params)
 {
     for (int i = 0; params[i]; i += 2)
         glTexParameteri(GL_TEXTURE_2D, params[i], params[i + 1]);
+}
+
+static pair<float, float> GetTexCoords(int low, int high)
+{
+    return {
+        float(low) / 1024.0f,
+        float(high + 1) / 1024.0f};
+}
+
+static pair<float, float> GetTexCoords(int index)
+{
+    int offset = index * 72;
+    return GetTexCoords(offset, offset + 69);
 }
 
 void LoadTexture(const char* path)
@@ -61,6 +75,35 @@ TestHandler::TestHandler()
     SetParams(TexParams);
     LoadTexture("../tiles_spritesheet.png");
     glDisable(GL_TEXTURE_2D);
+
+    auto tcs = GetTexCoords(2);
+    auto tct = GetTexCoords(8);
+
+    for (int i = -3; i < 3; ++i)
+    {
+        for (int j = -3; j < 0; ++j)
+        {
+            _vertices.push_back(i);
+            _vertices.push_back(j + 1);
+            _vertices.push_back(tcs.first);
+            _vertices.push_back(tct.first);
+
+            _vertices.push_back(i + 1);
+            _vertices.push_back(j + 1);
+            _vertices.push_back(tcs.second);
+            _vertices.push_back(tct.first);
+
+            _vertices.push_back(i + 1);
+            _vertices.push_back(j);
+            _vertices.push_back(tcs.second);
+            _vertices.push_back(tct.second);
+
+            _vertices.push_back(i);
+            _vertices.push_back(j);
+            _vertices.push_back(tcs.first);
+            _vertices.push_back(tct.second);
+        }
+    }
 }
 
 TestHandler::~TestHandler()
@@ -70,38 +113,34 @@ TestHandler::~TestHandler()
 
 void TestHandler::OnOpen()
 {
-    glClearColor(0.25f, 0.0f, 0.0f, 1.0f);
-    //glEnable(GL_TEXTURE_2D);
+    glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
+
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void TestHandler::OnClose()
 {
-    //glDisable(GL_TEXTURE_2D);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
 }
 
 void TestHandler::OnPrepareRender()
 {
-    auto third = Tau<float>() / 3.0f;
-
-    for (int i = 0; i < 3; ++i)
-    {
-        Vector4F v = {{0.0f, 1.0f, 0.0f, 1.0f}};
-        auto r = float(i) * third + _rotation;
-
-        auto matrix = _projectionMatrix * RotateZ(r);
-        v = Divided(matrix * v);
-        _vertices[i * 2 + 0] = v.values[0];
-        _vertices[i * 2 + 1] = v.values[1];
-    }
+    glLoadMatrixf(RotateZ(_rotation));
 }
 
 void TestHandler::OnRender()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    glBegin(GL_TRIANGLES);
-    glColor3f(0.0f, 1.0f, 1.0f);
-    for (int i = 0; i < 3; ++i) glVertex2fv(_vertices + i * 2);
-    glEnd();
+    glVertexPointer(2, GL_FLOAT, sizeof(GLfloat) * 4, _vertices.data());
+    glTexCoordPointer(2, GL_FLOAT, sizeof(GLfloat) * 4, _vertices.data() + 2);
+    glDrawArrays(GL_QUADS, 0, _vertices.size() / 4);
 }
 
 void TestHandler::OnUpdate()
@@ -133,7 +172,10 @@ void TestHandler::OnKeyDown(SDL_Keysym keysym)
 
 void TestHandler::OnResize(Sint32 width, Sint32 height)
 {
+    glMatrixMode(GL_PROJECTION);
     WindowEventHandler::OnResize(width, height);
     auto ratio = float(width) / float(height);
-    _projectionMatrix = Orthographic(2.0f, ratio);
+    _projectionMatrix = Orthographic(4.0f, ratio);
+    glLoadMatrixf(_projectionMatrix);
+    glMatrixMode(GL_MODELVIEW);
 }
