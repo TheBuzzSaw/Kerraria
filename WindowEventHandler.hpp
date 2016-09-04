@@ -31,7 +31,7 @@ public:
     virtual void OnRender();
     virtual void OnLoop();
     virtual void OnUpdate();
-    virtual void OnSecond(int framesPerSecond);
+    virtual void OnSecond();
 
     /// input events
 

@@ -1,4 +1,4 @@
-#include "WindowEventHandler.hpp"
+#include "TestHandler.hpp"
 #include <iostream>
 using namespace std;
 
@@ -22,8 +22,8 @@ void RunWindow()
     SDL_GL_SetSwapInterval(1);
 
     {
-        WindowEventHandler weh;
-        weh.Run(window);
+        TestHandler th;
+        th.Run(window);
     }
 
     SDL_GL_DeleteContext(context);

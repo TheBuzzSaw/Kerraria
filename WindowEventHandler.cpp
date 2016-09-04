@@ -22,7 +22,14 @@ void WindowEventHandler::Run(SDL_Window* window)
 {
     OnOpen();
 
+    int w;
+    int h;
+    SDL_GetWindowSize(window, &w, &h);
+    OnResize(w, h);
+
+    auto secondLength = SDL_GetPerformanceFrequency();
     auto lastUpdate = SDL_GetPerformanceCounter();
+    auto lastSecond = lastUpdate;
     _running = true;
 
     while (_running)
@@ -31,6 +38,14 @@ void WindowEventHandler::Run(SDL_Window* window)
         while (SDL_PollEvent(&event)) OnEvent(event);
 
         auto now = SDL_GetPerformanceCounter();
+
+        assert(now > lastSecond);
+        if ((now - lastSecond) >= secondLength)
+        {
+            OnSecond();
+            lastSecond = now;
+        }
+
         int updateCount = 0;
 
         assert(now > lastUpdate);
@@ -88,9 +103,8 @@ void WindowEventHandler::OnUpdate()
 {
 }
 
-void WindowEventHandler::OnSecond(int framesPerSecond)
+void WindowEventHandler::OnSecond()
 {
-    (void)framesPerSecond;
 }
 
 void WindowEventHandler::OnEvent(SDL_Event event)
@@ -112,6 +126,7 @@ void WindowEventHandler::OnEvent(SDL_Event event)
                     break;
                 case SDL_WINDOWEVENT_EXPOSED: OnExpose(); break;
 
+                //case SDL_WINDOWEVENT_RESIZED:
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
                     OnResize(
                         event.window.data1,
@@ -263,7 +278,6 @@ void WindowEventHandler::OnRestore()
 
 void WindowEventHandler::OnResize(Sint32 width, Sint32 height)
 {
-    std::cerr << "OnResize\n";
     (void)width;
     (void)height;
     glViewport(0, 0, width, height);
@@ -272,7 +286,6 @@ void WindowEventHandler::OnResize(Sint32 width, Sint32 height)
 
 void WindowEventHandler::OnExpose()
 {
-    std::cerr << "OnExpose\n";
     OnRender();
 }
 

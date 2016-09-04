@@ -36,6 +36,9 @@
 			<Add library="SDL2" />
 			<Add library="GL" />
 		</Linker>
+		<Unit filename="Matrix4x4.hpp" />
+		<Unit filename="TestHandler.cpp" />
+		<Unit filename="TestHandler.hpp" />
 		<Unit filename="WindowEventHandler.cpp" />
 		<Unit filename="WindowEventHandler.hpp" />
 		<Unit filename="main.cpp" />
