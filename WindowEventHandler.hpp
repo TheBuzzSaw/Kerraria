@@ -6,10 +6,12 @@
 class WindowEventHandler
 {
     Uint64 _frameLength;
+    SDL_Window* _window = nullptr;
     bool _running;
 
 protected:
     void SetUpdatesPerSecond(int updatesPerSecond);
+    inline SDL_Window* Window() { return _window; }
 
 public:
     WindowEventHandler();

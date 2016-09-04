@@ -19,6 +19,8 @@ public:
     virtual void OnRender();
     virtual void OnUpdate();
 
+    virtual void OnKeyDown(SDL_Keysym keysym);
+
     virtual void OnResize(Sint32 width, Sint32 height);
 };
 

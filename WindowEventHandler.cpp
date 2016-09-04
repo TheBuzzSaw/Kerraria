@@ -20,6 +20,7 @@ void WindowEventHandler::SetUpdatesPerSecond(int updatesPerSecond)
 
 void WindowEventHandler::Run(SDL_Window* window)
 {
+    _window = window;
     OnOpen();
 
     int w;
@@ -69,6 +70,7 @@ void WindowEventHandler::Run(SDL_Window* window)
     }
 
     OnClose();
+    _window = nullptr;
 }
 
 void WindowEventHandler::OnOpen()
