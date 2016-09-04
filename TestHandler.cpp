@@ -1,12 +1,82 @@
 #include "TestHandler.hpp"
+#include <SDL_image.h>
 using namespace std;
+
+static constexpr auto PixelFormat = SDL_PIXELFORMAT_ABGR8888;
+
+static const GLenum TexParams[] = {
+    GL_TEXTURE_WRAP_S, GL_REPEAT,
+    GL_TEXTURE_WRAP_T, GL_REPEAT,
+    GL_TEXTURE_MAG_FILTER, GL_LINEAR,
+    GL_TEXTURE_MIN_FILTER, GL_LINEAR,
+    0 };
+
+void SetParams(const GLenum* params)
+{
+    for (int i = 0; params[i]; i += 2)
+        glTexParameteri(GL_TEXTURE_2D, params[i], params[i + 1]);
+}
+
+void LoadTexture(const char* path)
+{
+    auto surface = IMG_Load(path);
+
+    if (surface)
+    {
+        if (surface->format->format != PixelFormat)
+        {
+            auto convertedSurface = SDL_ConvertSurfaceFormat(
+                surface,
+                PixelFormat,
+                0);
+
+            SDL_FreeSurface(surface);
+            surface = convertedSurface;
+        }
+
+        if (surface)
+        {
+            cout << "Loaded " << path << " successfully!\n";
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                GL_RGBA,
+                surface->w,
+                surface->h,
+                0,
+                GL_RGBA,
+                GL_UNSIGNED_BYTE,
+                surface->pixels);
+        }
+
+        SDL_FreeSurface(surface);
+    }
+}
 
 TestHandler::TestHandler()
 {
+    glEnable(GL_TEXTURE_2D);
+    glGenTextures(1, &_texture);
+    glBindTexture(GL_TEXTURE_2D, _texture);
+    SetParams(TexParams);
+    LoadTexture("../tiles_spritesheet.png");
+    glDisable(GL_TEXTURE_2D);
 }
 
 TestHandler::~TestHandler()
 {
+    glDeleteTextures(1, &_texture);
+}
+
+void TestHandler::OnOpen()
+{
+    glClearColor(0.25f, 0.0f, 0.0f, 1.0f);
+    //glEnable(GL_TEXTURE_2D);
+}
+
+void TestHandler::OnClose()
+{
+    //glDisable(GL_TEXTURE_2D);
 }
 
 void TestHandler::OnPrepareRender()

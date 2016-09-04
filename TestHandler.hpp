@@ -10,11 +10,14 @@ class TestHandler : public WindowEventHandler
     Matrix4x4F _projectionMatrix;
     GLfloat _vertices[6];
     float _rotation = 0.0f;
+    GLuint _texture;
 
 public:
     TestHandler();
     virtual ~TestHandler();
 
+    virtual void OnOpen();
+    virtual void OnClose();
     virtual void OnPrepareRender();
     virtual void OnRender();
     virtual void OnUpdate();

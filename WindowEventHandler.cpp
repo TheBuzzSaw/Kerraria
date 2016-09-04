@@ -75,7 +75,7 @@ void WindowEventHandler::Run(SDL_Window* window)
 
 void WindowEventHandler::OnOpen()
 {
-    glClearColor(0.25f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void WindowEventHandler::OnClose()

@@ -1,10 +1,12 @@
 #include "TestHandler.hpp"
 #include <iostream>
+#include <SDL_image.h>
 using namespace std;
 
 void RunWindow()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER);
+    IMG_Init(IMG_INIT_PNG);
 
     SDL_GL_SetAttribute(
         SDL_GL_CONTEXT_FLAGS,
@@ -29,6 +31,7 @@ void RunWindow()
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);
 
+    IMG_Quit();
     SDL_Quit();
 }
 
