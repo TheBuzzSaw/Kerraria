@@ -1,7 +1,9 @@
 #include "WindowEventHandler.hpp"
+#include "Debug.hpp"
 #include <SDL_opengl.h>
 #include <iostream>
 #include <cassert>
+using namespace std;
 
 WindowEventHandler::WindowEventHandler()
 {
@@ -33,6 +35,7 @@ void WindowEventHandler::Run(SDL_Window* window)
     auto secondLength = SDL_GetPerformanceFrequency();
     auto lastUpdate = SDL_GetPerformanceCounter();
     auto lastSecond = lastUpdate;
+    int peakUpdateCount = 0;
     _running = true;
 
     while (_running)
@@ -61,6 +64,13 @@ void WindowEventHandler::Run(SDL_Window* window)
 
         if (updateCount > 0)
         {
+            if (updateCount > peakUpdateCount)
+            {
+                Log() << "new peak update count: " << peakUpdateCount << " -> "
+                    << updateCount << '\n';
+                peakUpdateCount = updateCount;
+            }
+
             OnPrepareRender();
             OnRender();
             SDL_GL_SwapWindow(window);
@@ -113,6 +123,8 @@ void WindowEventHandler::OnSecond()
 
 void WindowEventHandler::OnEvent(SDL_Event event)
 {
+    //static int n = 0;
+    //cout << "OnEvent " << ++n << endl;
     switch (event.type)
     {
         case SDL_WINDOWEVENT:

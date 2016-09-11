@@ -1,6 +1,6 @@
 #include "TestHandler.hpp"
+#include "Debug.hpp"
 #include <SDL_image.h>
-#include <utility>
 using namespace std;
 
 static constexpr auto PixelFormat = SDL_PIXELFORMAT_ABGR8888;
@@ -50,7 +50,7 @@ void LoadTexture(const char* path)
 
         if (surface)
         {
-            cout << "Loaded " << path << " successfully!\n";
+            Log() << "Loaded " << path << " successfully!\n";
             glTexImage2D(
                 GL_TEXTURE_2D,
                 0,
@@ -76,7 +76,7 @@ TestHandler::TestHandler()
     LoadTexture("../tiles_spritesheet.png");
     glDisable(GL_TEXTURE_2D);
 
-    auto tcs = GetTexCoords(2);
+    auto tcs = GetTexCoords(1);
     auto tct = GetTexCoords(8);
 
     for (int i = -3; i < 3; ++i)

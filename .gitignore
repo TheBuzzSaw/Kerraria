@@ -35,5 +35,8 @@ stderr.txt
 # Builds
 *.bin
 
+# Logs
+*.txt
+
 .DS_Store
 

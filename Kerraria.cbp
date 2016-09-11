@@ -13,6 +13,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -22,6 +23,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -37,7 +39,10 @@
 			<Add library="SDL2_image" />
 			<Add library="GL" />
 		</Linker>
+		<Unit filename="Debug.cpp" />
+		<Unit filename="Debug.hpp" />
 		<Unit filename="Matrix4x4.hpp" />
+		<Unit filename="Span.hpp" />
 		<Unit filename="TestHandler.cpp" />
 		<Unit filename="TestHandler.hpp" />
 		<Unit filename="WindowEventHandler.cpp" />
