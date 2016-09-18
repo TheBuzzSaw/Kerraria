@@ -8,6 +8,8 @@ class WindowEventHandler
     Uint64 _frameLength;
     SDL_Window* _window = nullptr;
     bool _running;
+    bool _needPrepareRender;
+    bool _needRender;
 
 protected:
     void SetUpdatesPerSecond(int updatesPerSecond);

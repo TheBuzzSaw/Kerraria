@@ -39,6 +39,7 @@ void LoadTexture(const char* path)
     {
         if (surface->format->format != PixelFormat)
         {
+            Log() << "Converting format for " << path << '\n';
             auto convertedSurface = SDL_ConvertSurfaceFormat(
                 surface,
                 PixelFormat,
@@ -62,8 +63,16 @@ void LoadTexture(const char* path)
                 GL_UNSIGNED_BYTE,
                 surface->pixels);
         }
+        else
+        {
+            Log() << "Failed to convert image format for " << path << '\n';
+        }
 
         SDL_FreeSurface(surface);
+    }
+    else
+    {
+        Log() << "Failed to load image " << path << '\n';
     }
 }
 
@@ -157,15 +166,11 @@ void TestHandler::OnKeyDown(SDL_Keysym keysym)
             SDL_Delay(750);
             break;
         case SDLK_F11:
-            if (SDL_GetWindowFlags(Window()) & SDL_WINDOW_FULLSCREEN_DESKTOP)
-            {
-                SDL_SetWindowFullscreen(Window(), 0);
-            }
-            else
-            {
-                SDL_SetWindowFullscreen(Window(), SDL_WINDOW_FULLSCREEN_DESKTOP);
-            }
+        {
+            auto flag = SDL_GetWindowFlags(Window()) & SDL_WINDOW_FULLSCREEN_DESKTOP;
+            SDL_SetWindowFullscreen(Window(), flag ^ SDL_WINDOW_FULLSCREEN_DESKTOP);
             break;
+        }
         default: break;
     }
 }

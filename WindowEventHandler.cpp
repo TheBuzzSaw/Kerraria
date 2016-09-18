@@ -40,6 +40,10 @@ void WindowEventHandler::Run(SDL_Window* window)
 
     while (_running)
     {
+        bool doSleep = true;
+        _needPrepareRender = false;
+        _needRender = false;
+        
         SDL_Event event;
         while (SDL_PollEvent(&event)) OnEvent(event);
 
@@ -50,6 +54,7 @@ void WindowEventHandler::Run(SDL_Window* window)
         {
             OnSecond();
             lastSecond = now;
+            FlushLog();
         }
 
         int updateCount = 0;
@@ -71,14 +76,25 @@ void WindowEventHandler::Run(SDL_Window* window)
                 peakUpdateCount = updateCount;
             }
 
+            doSleep = false;
+            _needPrepareRender = true;
+            _needRender = true;
+        }
+        
+        if (_needPrepareRender)
+        {
+            doSleep = false;
             OnPrepareRender();
+        }
+        
+        if (_needRender)
+        {
+            doSleep = false;
             OnRender();
             SDL_GL_SwapWindow(window);
         }
-        else
-        {
-            SDL_Delay(1);
-        }
+        
+        if (doSleep) SDL_Delay(1);
     }
 
     OnClose();
@@ -140,10 +156,15 @@ void WindowEventHandler::OnEvent(SDL_Event event)
                 case SDL_WINDOWEVENT_MAXIMIZED:
                     OnMaximize();
                     break;
-                case SDL_WINDOWEVENT_EXPOSED: OnExpose(); break;
+                case SDL_WINDOWEVENT_EXPOSED:
+                    _needRender = true;
+                    OnExpose();
+                    break;
 
                 //case SDL_WINDOWEVENT_RESIZED:
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
+                    _needPrepareRender = true;
+                    _needRender = true;
                     OnResize(
                         event.window.data1,
                         event.window.data2);
@@ -297,12 +318,10 @@ void WindowEventHandler::OnResize(Sint32 width, Sint32 height)
     (void)width;
     (void)height;
     glViewport(0, 0, width, height);
-    OnPrepareRender();
 }
 
 void WindowEventHandler::OnExpose()
 {
-    OnRender();
 }
 
 void WindowEventHandler::OnExit()

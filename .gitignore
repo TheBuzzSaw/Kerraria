@@ -34,6 +34,7 @@ stderr.txt
 
 # Builds
 *.bin
+*.exe
 
 # Logs
 *.txt
