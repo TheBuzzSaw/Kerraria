@@ -327,7 +327,9 @@ template<typename T> struct Vector4
     inline operator const T*() const { return values; }
 };
 
-template<typename T> Vector4<T> operator*(Matrix4x4<T> matrix, Vector4<T> vector)
+template<typename T> Vector4<T> operator*(
+    Matrix4x4<T> matrix,
+    Vector4<T> vector)
 {
     Vector4<T> result = {};
 

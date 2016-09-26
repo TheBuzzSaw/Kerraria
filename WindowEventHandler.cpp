@@ -43,7 +43,7 @@ void WindowEventHandler::Run(SDL_Window* window)
         bool doSleep = true;
         _needPrepareRender = false;
         _needRender = false;
-        
+
         SDL_Event event;
         while (SDL_PollEvent(&event)) OnEvent(event);
 
@@ -76,24 +76,23 @@ void WindowEventHandler::Run(SDL_Window* window)
                 peakUpdateCount = updateCount;
             }
 
-            doSleep = false;
             _needPrepareRender = true;
             _needRender = true;
         }
-        
+
         if (_needPrepareRender)
         {
             doSleep = false;
             OnPrepareRender();
         }
-        
+
         if (_needRender)
         {
             doSleep = false;
             OnRender();
             SDL_GL_SwapWindow(window);
         }
-        
+
         if (doSleep) SDL_Delay(1);
     }
 
