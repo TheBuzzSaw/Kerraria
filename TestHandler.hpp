@@ -12,12 +12,10 @@ class TestHandler : public WindowEventHandler
     std::mt19937 _mt;
     Matrix4x4F _projectionMatrix;
     Matrix4x4F _rotateMatrix;
-    Matrix4x4F _lightMatrix[2];
     float _rotation = 0.0f;
-    int _lightStep = 0;
     GLuint _texture;
     std::vector<GLfloat> _vertices;
-    std::vector<GLfloat> _lightVertices[2];
+    std::vector<GLfloat> _lights;
 
 public:
     TestHandler();

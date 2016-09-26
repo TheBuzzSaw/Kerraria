@@ -36,6 +36,7 @@ void WindowEventHandler::Run(SDL_Window* window)
     auto lastUpdate = SDL_GetPerformanceCounter();
     auto lastSecond = lastUpdate;
     int peakUpdateCount = 0;
+    int sleepCount = 0;
     _running = true;
 
     while (_running)
@@ -52,6 +53,8 @@ void WindowEventHandler::Run(SDL_Window* window)
         assert(now > lastSecond);
         if ((now - lastSecond) >= secondLength)
         {
+            cerr << "sleep count -- " << sleepCount << '\n';
+            sleepCount = 0;
             OnSecond();
             lastSecond = now;
             FlushLog();
@@ -93,7 +96,11 @@ void WindowEventHandler::Run(SDL_Window* window)
             SDL_GL_SwapWindow(window);
         }
 
-        if (doSleep) SDL_Delay(1);
+        if (doSleep)
+        {
+            ++sleepCount;
+            SDL_Delay(1);
+        }
     }
 
     OnClose();

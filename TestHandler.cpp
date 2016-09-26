@@ -82,10 +82,11 @@ TestHandler::TestHandler()
     glDisable(GL_TEXTURE_2D);
 
     uniform_int_distribution<int> d(1, 8);
+    constexpr int N = 16;
 
-    for (int i = -6; i < 6; ++i)
+    for (int i = -N; i < N; ++i)
     {
-        for (int j = -6; j < 0; ++j)
+        for (int j = -N; j < 0; ++j)
         {
             auto tcs = GetTexCoords(d(_mt));
             auto tct = GetTexCoords(d(_mt));
@@ -95,56 +96,37 @@ TestHandler::TestHandler()
             _vertices.push_back(tcs.first);
             _vertices.push_back(tct.first);
 
+            _lights.push_back(1.0f);
+            _lights.push_back(1.0f);
+            _lights.push_back(1.0f);
+
             _vertices.push_back(i + 1);
             _vertices.push_back(j + 1);
             _vertices.push_back(tcs.second);
             _vertices.push_back(tct.first);
 
+            _lights.push_back(1.0f);
+            _lights.push_back(1.0f);
+            _lights.push_back(1.0f);
+
             _vertices.push_back(i + 1);
             _vertices.push_back(j);
             _vertices.push_back(tcs.second);
             _vertices.push_back(tct.second);
 
+            _lights.push_back(0.0f);
+            _lights.push_back(1.0f);
+            _lights.push_back(0.0f);
+
             _vertices.push_back(i);
             _vertices.push_back(j);
             _vertices.push_back(tcs.first);
             _vertices.push_back(tct.second);
+
+            _lights.push_back(0.0f);
+            _lights.push_back(0.0f);
+            _lights.push_back(1.0f);
         }
-    }
-
-    constexpr int EdgeCount = 32;
-    float radius = 2.0f;
-    _lightVertices[0].push_back(0.0f);
-    _lightVertices[0].push_back(0.0f);
-    _lightVertices[0].push_back(1.0f);
-    _lightVertices[0].push_back(0.0f);
-    _lightVertices[0].push_back(0.0f);
-    _lightVertices[0].push_back(1.0f);
-
-    _lightVertices[1].push_back(0.0f);
-    _lightVertices[1].push_back(0.0f);
-    _lightVertices[1].push_back(0.0f);
-    _lightVertices[1].push_back(1.0f);
-    _lightVertices[1].push_back(0.0f);
-    _lightVertices[1].push_back(1.0f);
-
-    for (int i = 0; i <= EdgeCount; ++i)
-    {
-        float radians = Tau<float>() * float(i) / float(EdgeCount);
-
-        _lightVertices[0].push_back(sin(radians) * radius);
-        _lightVertices[0].push_back(cos(radians) * radius);
-        _lightVertices[0].push_back(1.0f);
-        _lightVertices[0].push_back(0.0f);
-        _lightVertices[0].push_back(0.0f);
-        _lightVertices[0].push_back(1.0f);
-
-        _lightVertices[1].push_back(sin(radians) * radius);
-        _lightVertices[1].push_back(cos(radians) * radius);
-        _lightVertices[1].push_back(0.0f);
-        _lightVertices[1].push_back(1.0f);
-        _lightVertices[1].push_back(0.0f);
-        _lightVertices[1].push_back(1.0f);
     }
 }
 
@@ -157,61 +139,52 @@ void TestHandler::OnOpen()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+    glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void TestHandler::OnClose()
 {
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
 }
 
 void TestHandler::OnPrepareRender()
 {
     _rotateMatrix = RotateZ(_rotation);
-
-    auto n = sin(float(_lightStep) * Tau<float>() / 480.0f) * 4.0f;
-    _lightMatrix[0] = Translate(n, 0.0f, 0.0f);
-    _lightMatrix[1] = Translate(0.0f, n, 0.0f);
 }
 
 void TestHandler::OnRender()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Render lights.
-    glBlendFunc(GL_ONE, GL_ONE);
-    glEnableClientState(GL_COLOR_ARRAY);
-
-    for (int i = 0; i < 2; ++i)
-    {
-        glLoadMatrixf(_lightMatrix[i]);
-        glVertexPointer(
-            2, GL_FLOAT, sizeof(GLfloat) * 6, _lightVertices[i].data());
-        glColorPointer(
-            4, GL_FLOAT, sizeof(GLfloat) * 6, _lightVertices[i].data() + 2);
-        glDrawArrays(GL_TRIANGLE_FAN, 0, _lightVertices[i].size() / 6);
-    }
-
-    glDisableClientState(GL_COLOR_ARRAY);
-
-    // Render tiles.
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_TEXTURE_2D);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glLoadMatrixf(_rotateMatrix);
-    glVertexPointer(2, GL_FLOAT, sizeof(GLfloat) * 4, _vertices.data());
-    glTexCoordPointer(2, GL_FLOAT, sizeof(GLfloat) * 4, _vertices.data() + 2);
+    constexpr auto Stride = sizeof(GLfloat) * 4;
+    glVertexPointer(2, GL_FLOAT, Stride, _vertices.data());
+    glColorPointer(3, GL_FLOAT, 0, _lights.data());
+    glTexCoordPointer(2, GL_FLOAT, Stride, _vertices.data() + 2);
     glDrawArrays(GL_QUADS, 0, _vertices.size() / 4);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisable(GL_TEXTURE_2D);
 }
 
 void TestHandler::OnUpdate()
 {
     _rotation -= (1.0f / 128.0f);
-    ++_lightStep;
+
+    static int n = 0;
+    n = (n + 1) % 30;
+    if (!n)
+    {
+        uniform_real_distribution<float> d(0.0f, 1.0f);
+
+        for (auto& v : _lights) v = d(_mt);
+    }
 }
 
 void TestHandler::OnKeyDown(SDL_Keysym keysym)
