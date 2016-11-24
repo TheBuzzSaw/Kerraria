@@ -106,21 +106,39 @@ GLuint LoadProgram(
     const char* vertexShaderSource,
     const char* fragmentShaderSource)
 {
-    GLuint result = glCreateProgram();
+    GLuint program = glCreateProgram();
 
      GLuint vertexShader =
         LoadShader(vertexShaderSource, GL_VERTEX_SHADER);
     GLuint fragmentShader =
         LoadShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
 
-    glAttachShader(result, vertexShader);
-    glAttachShader(result, fragmentShader);
-    glLinkProgram(result);
+    glAttachShader(program, vertexShader);
+    glAttachShader(program, fragmentShader);
+    glLinkProgram(program);
+
+    GLint isLinked;
+    glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
+    if (isLinked == GL_FALSE)
+    {
+        GLint length = 0;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+
+        string errors;
+        errors.resize(length);
+        glGetProgramInfoLog(program, length, &length, &errors[0]);
+
+        Log() << "-- program linker errors --\n" << errors << '\n';
+    }
+    else
+    {
+        Log() << "successfully linked shader program\n";
+    }
 
     glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
 
-    return result;
+    return program;
 }
 
 string FileToString(const char* path)
@@ -160,6 +178,11 @@ TestHandler::TestHandler()
     _program = LoadProgramFromFiles(
         "vertex.shader",
         "fragment.shader");
+
+    _textureUniform = glGetUniformLocation(_program, "theTexture");
+    _positionAttribute = glGetAttribLocation(_program, "position");
+    _colorAttribute = glGetAttribLocation(_program, "color");
+    _textureCoordinateAttribute = glGetAttribLocation(_program, "textureCoordinates");
 
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &_texture);
@@ -227,37 +250,63 @@ void TestHandler::OnOpen()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+    glUseProgram(_program);
+
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableVertexAttribArray(_positionAttribute);
+    glEnableVertexAttribArray(_colorAttribute);
+    glEnableVertexAttribArray(_textureCoordinateAttribute);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _texture);
+    glUniform1i(_textureUniform, 0);
 }
 
 void TestHandler::OnClose()
 {
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableVertexAttribArray(_textureCoordinateAttribute);
+    glDisableVertexAttribArray(_colorAttribute);
+    glDisableVertexAttribArray(_positionAttribute);
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
+
+    glUseProgram(0);
 }
 
 void TestHandler::OnPrepareRender()
 {
     _rotateMatrix = RotateZ(_rotation);
+    glLoadMatrixf(_rotateMatrix);
 }
 
 void TestHandler::OnRender()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glLoadMatrixf(_rotateMatrix);
     constexpr auto Stride = sizeof(GLfloat) * 4;
-    glVertexPointer(2, GL_FLOAT, Stride, _vertices.data());
-    glColorPointer(3, GL_FLOAT, 0, _lights.data());
-    glTexCoordPointer(2, GL_FLOAT, Stride, _vertices.data() + 2);
+    glVertexAttribPointer(
+        _positionAttribute,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        Stride,
+        _vertices.data());
+    glVertexAttribPointer(
+        _colorAttribute,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        _lights.data());
+    glVertexAttribPointer(
+        _textureCoordinateAttribute,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        Stride,
+        _vertices.data() + 2);
     glDrawArrays(GL_QUADS, 0, _vertices.size() / 4);
 }
 

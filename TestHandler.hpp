@@ -15,6 +15,10 @@ class TestHandler : public WindowEventHandler
     float _rotation = 0.0f;
     GLuint _texture;
     GLuint _program;
+    GLint _textureUniform;
+    GLint _positionAttribute;
+    GLint _colorAttribute;
+    GLint _textureCoordinateAttribute;
     std::vector<GLfloat> _vertices;
     std::vector<GLfloat> _lights;
 

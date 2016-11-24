@@ -5,6 +5,18 @@
 #include <SDL_image.h>
 using namespace std;
 
+void MyCallback(
+    GLenum source,
+    GLenum type,
+    GLuint id,
+    GLenum severity,
+    GLsizei length,
+    const GLchar* msg,
+    const void* data)
+{
+    if (msg && *msg) Log() << "[OpenGL] " << msg << '\n';
+}
+
 void RunWindow()
 {
     ofstream fout("debug.txt", ofstream::binary);
@@ -39,9 +51,14 @@ void RunWindow()
     GLint v;
     glGetIntegerv(GL_CONTEXT_FLAGS, &v);
     if (v & GL_CONTEXT_FLAG_DEBUG_BIT)
+    {
         Log() << "enabled\n";
+        glDebugMessageCallback((GLDEBUGPROC)MyCallback, nullptr);
+    }
     else
+    {
         Log() << "disabled\n";
+    }
 
     TestHandler().Run(window);
 
