@@ -27,6 +27,7 @@ void RunWindow()
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     auto context = SDL_GL_CreateContext(window);
+    glewInit();
 
     Log() << "SDL_GL_SetSwapInterval ";
     if (SDL_GL_SetSwapInterval(1))
@@ -34,12 +35,13 @@ void RunWindow()
     else
         Log() << "succeeded.\n";
 
+    Log() << "OpenGL debug context flag ";
     GLint v;
     glGetIntegerv(GL_CONTEXT_FLAGS, &v);
     if (v & GL_CONTEXT_FLAG_DEBUG_BIT)
-        Log() << "OpenGL debug context flag enabled\n";
+        Log() << "enabled\n";
     else
-        Log() << "OpenGL debug context flag not enabled\n";
+        Log() << "disabled\n";
 
     TestHandler().Run(window);
 

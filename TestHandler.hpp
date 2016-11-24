@@ -3,7 +3,7 @@
 
 #include "WindowEventHandler.hpp"
 #include "Matrix4x4.hpp"
-#include <SDL_opengl.h>
+#include "OpenGL.hpp"
 #include <vector>
 #include <random>
 
@@ -14,6 +14,7 @@ class TestHandler : public WindowEventHandler
     Matrix4x4F _rotateMatrix;
     float _rotation = 0.0f;
     GLuint _texture;
+    GLuint _program;
     std::vector<GLfloat> _vertices;
     std::vector<GLfloat> _lights;
 

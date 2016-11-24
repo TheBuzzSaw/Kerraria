@@ -1,6 +1,6 @@
 #include "WindowEventHandler.hpp"
 #include "Debug.hpp"
-#include <SDL_opengl.h>
+#include "OpenGL.hpp"
 #include <iostream>
 #include <cassert>
 using namespace std;

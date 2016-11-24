@@ -1,6 +1,8 @@
 #include "TestHandler.hpp"
 #include "Debug.hpp"
 #include <SDL_image.h>
+#include <fstream>
+#include <sstream>
 using namespace std;
 
 static constexpr auto PixelFormat = SDL_PIXELFORMAT_ABGR8888;
@@ -72,8 +74,73 @@ void LoadTexture(const char* path)
     }
 }
 
+GLuint LoadShader(const char* source, GLenum shaderType)
+{
+    GLuint result = glCreateShader(shaderType);
+
+    glShaderSource(result, 1, &source, nullptr);
+    glCompileShader(result);
+
+    return result;
+}
+
+GLuint LoadProgram(
+    const char* vertexShaderSource, 
+    const char* fragmentShaderSource)
+{
+    GLuint result = glCreateProgram();
+    
+     GLuint vertexShader =
+        LoadShader(vertexShaderSource, GL_VERTEX_SHADER);
+    GLuint fragmentShader =
+        LoadShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
+
+    glAttachShader(result, vertexShader);
+    glAttachShader(result, fragmentShader);
+    glLinkProgram(result);
+
+    glDeleteShader(fragmentShader);
+    glDeleteShader(vertexShader);
+    
+    return result;
+}
+
+string FileToString(const char* path)
+{
+    string result;
+
+    if (path && *path)
+    {
+        ifstream stream(path, ifstream::binary);
+
+        if (stream)
+        {
+            ostringstream oss;
+            oss << stream.rdbuf();
+            stream.close();
+            result = oss.str();
+        }
+    }
+
+    return result;
+}
+
+GLuint LoadProgramFromFiles(
+    const char* vertexShaderPath,
+    const char* fragmentShaderPath)
+{
+    string vertexShaderSource = FileToString(vertexShaderPath);
+    string fragmentShaderSource = FileToString(fragmentShaderPath);
+    
+    return LoadProgram(
+        vertexShaderSource.c_str(),
+        fragmentShaderSource.c_str());
+}
+
 TestHandler::TestHandler()
 {
+    
+    
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &_texture);
     glBindTexture(GL_TEXTURE_2D, _texture);
@@ -179,7 +246,7 @@ void TestHandler::OnUpdate()
 
     static int n = 0;
     n = (n + 1) % 30;
-    if (!n)
+    //if (!n)
     {
         uniform_real_distribution<float> d(0.0f, 1.0f);
 
