@@ -4,6 +4,7 @@
 #include "WindowEventHandler.hpp"
 #include "Matrix4x4.hpp"
 #include "OpenGL.hpp"
+#include "Grid.hpp"
 #include <vector>
 #include <random>
 
@@ -19,6 +20,9 @@ class TestHandler : public WindowEventHandler
     GLint _positionAttribute;
     GLint _colorAttribute;
     GLint _textureCoordinateAttribute;
+    Grid<uint8_t> _grid;
+    std::vector<GLfloat> _vertexData;
+    std::vector<uint8_t> _tiles;
     std::vector<GLfloat> _vertices;
     std::vector<GLfloat> _lights;
 

@@ -175,6 +175,21 @@ GLuint LoadProgramFromFiles(
 
 TestHandler::TestHandler()
 {
+    _vertexData.reserve(1024);
+
+    _grid.width = 256;
+    _grid.height = 64;
+    _tiles.resize(_grid.Count(), 0xff);
+    _grid.data = _tiles.data();
+
+    for (int i = _grid.height / 2; i < _grid.height; ++i)
+    {
+        for (int j = 0; j < _grid.width; ++j)
+        {
+            _grid(j, i) = 0xd8;
+        }
+    }
+
     _program = LoadProgramFromFiles(
         "vertex.shader",
         "fragment.shader");
