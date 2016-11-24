@@ -40,6 +40,8 @@ void WindowEventHandler::Run(SDL_Window* window)
     int prepareRenderCount = 0;
     int renderCount = 0;
     int sleepCount = 0;
+
+    FlushLog();
     _running = true;
 
     while (_running)
