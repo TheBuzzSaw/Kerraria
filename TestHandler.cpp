@@ -76,20 +76,38 @@ void LoadTexture(const char* path)
 
 GLuint LoadShader(const char* source, GLenum shaderType)
 {
-    GLuint result = glCreateShader(shaderType);
+    GLuint shader = glCreateShader(shaderType);
 
-    glShaderSource(result, 1, &source, nullptr);
-    glCompileShader(result);
+    glShaderSource(shader, 1, &source, nullptr);
+    glCompileShader(shader);
 
-    return result;
+    GLint isCompiled;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+    if (isCompiled == GL_FALSE)
+    {
+        GLint length = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+
+        string errors;
+        errors.resize(length);
+        glGetShaderInfoLog(shader, length, &length, &errors[0]);
+
+        Log() << "-- shader compilation errors --\n" << errors << '\n';
+    }
+    else
+    {
+        Log() << "successfully compiled shader\n";
+    }
+
+    return shader;
 }
 
 GLuint LoadProgram(
-    const char* vertexShaderSource, 
+    const char* vertexShaderSource,
     const char* fragmentShaderSource)
 {
     GLuint result = glCreateProgram();
-    
+
      GLuint vertexShader =
         LoadShader(vertexShaderSource, GL_VERTEX_SHADER);
     GLuint fragmentShader =
@@ -101,7 +119,7 @@ GLuint LoadProgram(
 
     glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
-    
+
     return result;
 }
 
@@ -131,7 +149,7 @@ GLuint LoadProgramFromFiles(
 {
     string vertexShaderSource = FileToString(vertexShaderPath);
     string fragmentShaderSource = FileToString(fragmentShaderPath);
-    
+
     return LoadProgram(
         vertexShaderSource.c_str(),
         fragmentShaderSource.c_str());
@@ -139,8 +157,10 @@ GLuint LoadProgramFromFiles(
 
 TestHandler::TestHandler()
 {
-    
-    
+    _program = LoadProgramFromFiles(
+        "vertex.shader",
+        "fragment.shader");
+
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &_texture);
     glBindTexture(GL_TEXTURE_2D, _texture);
@@ -200,6 +220,7 @@ TestHandler::TestHandler()
 TestHandler::~TestHandler()
 {
     glDeleteTextures(1, &_texture);
+    glDeleteProgram(_program);
 }
 
 void TestHandler::OnOpen()

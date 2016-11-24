@@ -7,6 +7,7 @@ class WindowEventHandler
 {
     Uint64 _frameLength;
     SDL_Window* _window = nullptr;
+    int _updatesPerSecond;
     bool _running;
     bool _needPrepareRender;
     bool _needRender;

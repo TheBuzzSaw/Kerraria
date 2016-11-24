@@ -17,6 +17,7 @@ WindowEventHandler::~WindowEventHandler()
 void WindowEventHandler::SetUpdatesPerSecond(int updatesPerSecond)
 {
     assert(updatesPerSecond > 0);
+    _updatesPerSecond = updatesPerSecond;
     _frameLength = SDL_GetPerformanceFrequency() / updatesPerSecond;
 }
 
@@ -36,6 +37,8 @@ void WindowEventHandler::Run(SDL_Window* window)
     auto lastUpdate = SDL_GetPerformanceCounter();
     auto lastSecond = lastUpdate;
     int peakUpdateCount = 0;
+    int prepareRenderCount = 0;
+    int renderCount = 0;
     int sleepCount = 0;
     _running = true;
 
@@ -50,10 +53,16 @@ void WindowEventHandler::Run(SDL_Window* window)
 
         auto now = SDL_GetPerformanceCounter();
 
-        assert(now > lastSecond);
+        assert(now >= lastSecond);
         if ((now - lastSecond) >= secondLength)
         {
-            cerr << "sleep count -- " << sleepCount << '\n';
+            Log() << prepareRenderCount << " calls to OnPrepareRender\n";
+            Log() << renderCount << " calls to OnRender\n";
+            Log() << sleepCount << " sleeps ("
+                << (sleepCount / _updatesPerSecond) << " sleeps per frame)\n";
+
+            prepareRenderCount = 0;
+            renderCount = 0;
             sleepCount = 0;
             OnSecond();
             lastSecond = now;
@@ -62,7 +71,7 @@ void WindowEventHandler::Run(SDL_Window* window)
 
         int updateCount = 0;
 
-        assert(now > lastUpdate);
+        assert(now >= lastUpdate);
         while ((now - lastUpdate) >= _frameLength)
         {
             OnUpdate();
@@ -85,12 +94,14 @@ void WindowEventHandler::Run(SDL_Window* window)
 
         if (_needPrepareRender)
         {
+            ++prepareRenderCount;
             doSleep = false;
             OnPrepareRender();
         }
 
         if (_needRender)
         {
+            ++renderCount;
             doSleep = false;
             OnRender();
             SDL_GL_SwapWindow(window);
