@@ -6,6 +6,7 @@
 using namespace std;
 
 static constexpr auto PixelFormat = SDL_PIXELFORMAT_ABGR8888;
+static constexpr float Delta = 0.25f;
 
 static const GLenum TexParams[] = {
     GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE,
@@ -254,7 +255,17 @@ void TestHandler::OnPrepareRender()
 {
     _vertexData.clear();
     auto halfSpace = _tileViewSpace / 2.0f;
-    auto tileViewOffset = (_tileViewCenter - halfSpace).Cast<int>();
+    Point<float> center = {
+        Restricted(_tileViewCenter.x, halfSpace.x, _grid.width - halfSpace.x),
+        Restricted(_tileViewCenter.y, halfSpace.y, _grid.height - halfSpace.y)};
+    
+    auto tileViewOffset = (center - halfSpace)
+        .Cast<int>()
+        .Restricted(
+            0,
+            _grid.width - _tileViewSize.x,
+            0,
+            _grid.height - _tileViewSize.y);
 
     for (int i = 0; i < _tileViewSize.y; ++i)
     {
@@ -320,22 +331,24 @@ void TestHandler::OnPrepareRender()
             _vertexData.push_back(1.0f);
         }
     }
-
+    
+    auto translation = -center + tileViewOffset.Cast<float>();
+    
+    _rotateMatrix =
+        //RotateZ(_rotation) *
+        Translate(
+            translation.x,
+            translation.y,
+            0.0f);
+    glLoadMatrixf(_rotateMatrix);
+    
     if (_logDump)
     {
         _logDump = false;
-        Log() << halfSpace << '\n';
+        Log() << "halfSpace -- " << halfSpace << '\n';
+        Log() << "center -- " << center << '\n';
+        Log() << "translation -- " << translation << '\n';
     }
-
-    
-    
-    _rotateMatrix =
-        RotateZ(_rotation) *
-        Translate(
-            -_tileViewCenter.x + tileViewOffset.x,
-            -_tileViewCenter.y + tileViewOffset.y,
-            0.0f);
-    glLoadMatrixf(_rotateMatrix);
 }
 
 void TestHandler::OnRender()
@@ -372,6 +385,7 @@ void TestHandler::OnRender()
 
 void TestHandler::OnUpdate()
 {
+    _tileViewCenter += _delta;
     _rotation -= (1.0f / 128.0f);
 }
 
@@ -393,7 +407,32 @@ void TestHandler::OnKeyDown(SDL_Keysym keysym)
                 flag ^ SDL_WINDOW_FULLSCREEN_DESKTOP);
             break;
         }
+        case SDLK_LEFT: _delta.x = -Delta; break;
+        case SDLK_RIGHT: _delta.x = Delta; break;
+        case SDLK_UP: _delta.y = Delta; break;
+        case SDLK_DOWN: _delta.y = -Delta; break;
+        
         default: break;
+    }
+}
+
+void TestHandler::OnKeyUp(SDL_Keysym keysym)
+{
+    WindowEventHandler::OnKeyUp(keysym);
+    switch (keysym.sym)
+    {
+        case SDLK_LEFT:
+            if (_delta.x < 0.0f) _delta.x = 0.0f; 
+            break;
+        case SDLK_RIGHT: 
+            if (_delta.x > 0.0f) _delta.x = 0.0f;
+            break;
+        case SDLK_UP:
+            if (_delta.y > 0.0f) _delta.y = 0.0f;
+            break;
+        case SDLK_DOWN:
+            if (_delta.y < 0.0f) _delta.y = 0.0f;
+            break;
     }
 }
 
@@ -415,7 +454,8 @@ void TestHandler::OnResize(Sint32 width, Sint32 height)
         _tileViewSpace = {Diameter, Diameter / ratio};
     }
 
-    _tileViewSize = _tileViewSpace.Cast<int>() + Point<int>{2, 2};
+    _tileViewSize = (_tileViewSpace.Cast<int>() + Point<int>{2, 2})
+        .Restricted(1, _grid.width, 1, _grid.height);
     _projectionMatrix = Orthographic(Radius, ratio);
     glLoadMatrixf(_projectionMatrix);
     glMatrixMode(GL_MODELVIEW);

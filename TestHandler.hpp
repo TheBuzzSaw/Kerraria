@@ -25,6 +25,7 @@ class TestHandler : public WindowEventHandler
     Point<int> _tileViewSize = {};
     Point<float> _tileViewSpace = {};
     Point<float> _tileViewCenter = {};
+    Point<float> _delta = {};
     std::vector<GLfloat> _vertexData;
     std::vector<uint8_t> _tiles;
     bool _logDump = false;
@@ -40,6 +41,7 @@ public:
     void OnUpdate() override;
 
     void OnKeyDown(SDL_Keysym keysym) override;
+    void OnKeyUp(SDL_Keysym keysym) override;
 
     void OnResize(Sint32 width, Sint32 height) override;
 };

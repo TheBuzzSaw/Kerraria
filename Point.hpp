@@ -2,6 +2,7 @@
 #define POINT_HPP
 
 #include "Rational.hpp"
+#include "Math.hpp"
 
 template<typename T> struct Point
 {
@@ -20,6 +21,13 @@ template<typename T> struct Point
         x -= other.x;
         y -= other.y;
         return *this;
+    }
+    
+    Point<T> Restricted(T lowX, T highX, T lowY, T highY) const
+    {
+        return {
+            ::Restricted(x, lowX, highX),
+            ::Restricted(y, lowY, highY)};
     }
 
     template<typename T2> Point<T2> Cast() const
@@ -48,6 +56,11 @@ template<typename T> constexpr Point<T> operator*(Point<T> p, T multiplier)
 template<typename T> constexpr Point<T> operator/(Point<T> p, T divisor)
 {
     return { p.x / divisor, p.y / divisor };
+}
+
+template<typename T> constexpr Point<T> operator-(Point<T> p)
+{
+    return {-p.x, -p.y};
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& stream, Point<T> p)
