@@ -6,7 +6,7 @@
 using namespace std;
 
 static constexpr auto PixelFormat = SDL_PIXELFORMAT_ABGR8888;
-static constexpr float Delta = 0.25f;
+static constexpr float Delta = 1.0f / 8.0f;
 
 static const GLenum TexParams[] = {
     GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE,
@@ -258,7 +258,7 @@ void TestHandler::OnPrepareRender()
     Point<float> center = {
         Restricted(_tileViewCenter.x, halfSpace.x, _grid.width - halfSpace.x),
         Restricted(_tileViewCenter.y, halfSpace.y, _grid.height - halfSpace.y)};
-    
+
     auto tileViewOffset = (center - halfSpace)
         .Cast<int>()
         .Restricted(
@@ -331,9 +331,9 @@ void TestHandler::OnPrepareRender()
             _vertexData.push_back(1.0f);
         }
     }
-    
+
     auto translation = -center + tileViewOffset.Cast<float>();
-    
+
     _rotateMatrix =
         //RotateZ(_rotation) *
         Translate(
@@ -341,7 +341,7 @@ void TestHandler::OnPrepareRender()
             translation.y,
             0.0f);
     glLoadMatrixf(_rotateMatrix);
-    
+
     if (_logDump)
     {
         _logDump = false;
@@ -357,7 +357,7 @@ void TestHandler::OnRender()
 
     constexpr auto Stride = sizeof(GLfloat) * 7;
     auto data = _vertexData.data();
-    
+
     glVertexAttribPointer(
         _positionAttribute,
         2,
@@ -379,7 +379,7 @@ void TestHandler::OnRender()
         GL_FALSE,
         Stride,
         data + 4);
-    
+
     glDrawArrays(GL_TRIANGLES, 0, _vertexData.size() / 7);
 }
 
@@ -407,11 +407,24 @@ void TestHandler::OnKeyDown(SDL_Keysym keysym)
                 flag ^ SDL_WINDOW_FULLSCREEN_DESKTOP);
             break;
         }
-        case SDLK_LEFT: _delta.x = -Delta; break;
-        case SDLK_RIGHT: _delta.x = Delta; break;
-        case SDLK_UP: _delta.y = Delta; break;
-        case SDLK_DOWN: _delta.y = -Delta; break;
-        
+
+        case SDLK_a:
+        case SDLK_LEFT:
+            _delta.x = -Delta;
+            break;
+        case SDLK_d:
+        case SDLK_RIGHT:
+            _delta.x = Delta;
+            break;
+        case SDLK_w:
+        case SDLK_UP:
+            _delta.y = Delta;
+            break;
+        case SDLK_s:
+        case SDLK_DOWN:
+            _delta.y = -Delta;
+            break;
+
         default: break;
     }
 }
@@ -421,15 +434,19 @@ void TestHandler::OnKeyUp(SDL_Keysym keysym)
     WindowEventHandler::OnKeyUp(keysym);
     switch (keysym.sym)
     {
+        case SDLK_a:
         case SDLK_LEFT:
-            if (_delta.x < 0.0f) _delta.x = 0.0f; 
+            if (_delta.x < 0.0f) _delta.x = 0.0f;
             break;
-        case SDLK_RIGHT: 
+        case SDLK_d:
+        case SDLK_RIGHT:
             if (_delta.x > 0.0f) _delta.x = 0.0f;
             break;
+        case SDLK_w:
         case SDLK_UP:
             if (_delta.y > 0.0f) _delta.y = 0.0f;
             break;
+        case SDLK_s:
         case SDLK_DOWN:
             if (_delta.y < 0.0f) _delta.y = 0.0f;
             break;
