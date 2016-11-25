@@ -181,13 +181,21 @@ TestHandler::TestHandler()
     _grid.height = 64;
     _tiles.resize(_grid.Count(), 0xff);
     _grid.data = _tiles.data();
+    _tileViewCenter = {
+        static_cast<float>(_grid.width / 2),
+        static_cast<float>(_grid.height / 2)};
 
-    for (int i = _grid.height / 2; i < _grid.height; ++i)
+    for (int i = 0; i < _grid.height / 2; ++i)
     {
         for (int j = 0; j < _grid.width; ++j)
         {
-            _grid(j, i) = 0xd8;
+            _grid(j, i) = 0xc8;
         }
+    }
+
+    for (int i = 0; i < _grid.width; ++i)
+    {
+        _grid(i, _grid.height / 2) = 0x87;
     }
 
     _program = LoadProgramFromFiles(
@@ -205,54 +213,6 @@ TestHandler::TestHandler()
     SetParams(TexParams);
     LoadTexture("../tiles_spritesheet.png");
     glDisable(GL_TEXTURE_2D);
-
-    uniform_int_distribution<int> d(1, 8);
-    constexpr int N = 16;
-
-    for (int i = -N; i < N; ++i)
-    {
-        for (int j = -N; j < 0; ++j)
-        {
-            auto tcs = GetTexCoords(d(_mt));
-            auto tct = GetTexCoords(d(_mt));
-
-            _vertices.push_back(i);
-            _vertices.push_back(j + 1);
-            _vertices.push_back(tcs.first);
-            _vertices.push_back(tct.first);
-
-            _lights.push_back(1.0f);
-            _lights.push_back(1.0f);
-            _lights.push_back(1.0f);
-
-            _vertices.push_back(i + 1);
-            _vertices.push_back(j + 1);
-            _vertices.push_back(tcs.second);
-            _vertices.push_back(tct.first);
-
-            _lights.push_back(1.0f);
-            _lights.push_back(1.0f);
-            _lights.push_back(1.0f);
-
-            _vertices.push_back(i + 1);
-            _vertices.push_back(j);
-            _vertices.push_back(tcs.second);
-            _vertices.push_back(tct.second);
-
-            _lights.push_back(0.0f);
-            _lights.push_back(1.0f);
-            _lights.push_back(0.0f);
-
-            _vertices.push_back(i);
-            _vertices.push_back(j);
-            _vertices.push_back(tcs.first);
-            _vertices.push_back(tct.second);
-
-            _lights.push_back(0.0f);
-            _lights.push_back(0.0f);
-            _lights.push_back(1.0f);
-        }
-    }
 }
 
 TestHandler::~TestHandler()
@@ -292,7 +252,88 @@ void TestHandler::OnClose()
 
 void TestHandler::OnPrepareRender()
 {
-    _rotateMatrix = RotateZ(_rotation);
+    _vertexData.clear();
+    Point<float> corner = _tileViewCenter - (_tileViewSpace / 2.0f);
+    Point<int> tileViewOffset = {
+        static_cast<int>(corner.x),
+        static_cast<int>(corner.y)};
+
+    for (int i = 0; i < _tileViewSize.y; ++i)
+    {
+        for (int j = 0; j < _tileViewSize.x; ++j)
+        {
+            uint8_t tile = _grid(tileViewOffset.x + j, tileViewOffset.y + i);
+            if (tile == 0xff) continue;
+            int xi = tile & 0xf;
+            int yi = (tile >> 4) & 0xf;
+
+            auto tcs = GetTexCoords(xi);
+            auto tct = GetTexCoords(yi);
+
+            auto x = static_cast<float>(j);
+            auto y = static_cast<float>(i);
+
+            _vertexData.push_back(x);
+            _vertexData.push_back(y);
+            _vertexData.push_back(tcs.first);
+            _vertexData.push_back(tct.second);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+
+            _vertexData.push_back(x);
+            _vertexData.push_back(y + 1.0f);
+            _vertexData.push_back(tcs.first);
+            _vertexData.push_back(tct.first);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+
+            _vertexData.push_back(x + 1.0f);
+            _vertexData.push_back(y + 1.0f);
+            _vertexData.push_back(tcs.second);
+            _vertexData.push_back(tct.first);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+
+            _vertexData.push_back(x);
+            _vertexData.push_back(y);
+            _vertexData.push_back(tcs.first);
+            _vertexData.push_back(tct.second);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+
+            _vertexData.push_back(x + 1.0f);
+            _vertexData.push_back(y + 1.0f);
+            _vertexData.push_back(tcs.second);
+            _vertexData.push_back(tct.first);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+
+            _vertexData.push_back(x + 1.0f);
+            _vertexData.push_back(y);
+            _vertexData.push_back(tcs.second);
+            _vertexData.push_back(tct.second);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+            _vertexData.push_back(1.0f);
+        }
+    }
+
+    if (_logDump)
+    {
+        _logDump = false;
+
+        for (size_t i = 0; i < _vertexData.size(); i += 7)
+        {
+            Log() << _vertexData[i] << ", " << _vertexData[i + 1] << '\n';
+        }
+    }
+
+    _rotateMatrix = RotateZ(_rotation) * Translate(-8.0f, -8.0f, 0.0f);
     glLoadMatrixf(_rotateMatrix);
 }
 
@@ -300,43 +341,34 @@ void TestHandler::OnRender()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    constexpr auto Stride = sizeof(GLfloat) * 4;
+    constexpr auto Stride = sizeof(GLfloat) * 7;
     glVertexAttribPointer(
         _positionAttribute,
         2,
         GL_FLOAT,
         GL_FALSE,
         Stride,
-        _vertices.data());
+        _vertexData.data());
     glVertexAttribPointer(
         _colorAttribute,
         3,
         GL_FLOAT,
         GL_FALSE,
-        0,
-        _lights.data());
+        Stride,
+        _vertexData.data() + 4);
     glVertexAttribPointer(
         _textureCoordinateAttribute,
         2,
         GL_FLOAT,
         GL_FALSE,
         Stride,
-        _vertices.data() + 2);
-    glDrawArrays(GL_QUADS, 0, _vertices.size() / 4);
+        _vertexData.data() + 2);
+    glDrawArrays(GL_TRIANGLES, 0, _vertexData.size() / 7);
 }
 
 void TestHandler::OnUpdate()
 {
     _rotation -= (1.0f / 128.0f);
-
-    static int n = 0;
-    n = (n + 1) % 30;
-    //if (!n)
-    {
-        uniform_real_distribution<float> d(0.0f, 1.0f);
-
-        for (auto& v : _lights) v = d(_mt);
-    }
 }
 
 void TestHandler::OnKeyDown(SDL_Keysym keysym)
@@ -345,7 +377,8 @@ void TestHandler::OnKeyDown(SDL_Keysym keysym)
     switch (keysym.sym)
     {
         case SDLK_BACKSLASH:
-            SDL_Delay(750);
+            //SDL_Delay(750);
+            _logDump = true;
             break;
         case SDLK_F11:
         {
@@ -362,10 +395,26 @@ void TestHandler::OnKeyDown(SDL_Keysym keysym)
 
 void TestHandler::OnResize(Sint32 width, Sint32 height)
 {
+    constexpr float Radius = 8.0f;
+    constexpr float Diameter = Radius * 2.0f;
+
     glMatrixMode(GL_PROJECTION);
     WindowEventHandler::OnResize(width, height);
     auto ratio = float(width) / float(height);
-    _projectionMatrix = Orthographic(8.0f, ratio);
+
+    if (width > height)
+    {
+        _tileViewSpace = {Diameter * ratio, Diameter};
+    }
+    else
+    {
+        _tileViewSpace = {Diameter, Diameter / ratio};
+    }
+
+    _tileViewSize = {
+            static_cast<int>(_tileViewSpace.x) + 2,
+            static_cast<int>(_tileViewSpace.y) + 2};
+    _projectionMatrix = Orthographic(Radius, ratio);
     glLoadMatrixf(_projectionMatrix);
     glMatrixMode(GL_MODELVIEW);
 }

@@ -5,6 +5,7 @@
 #include "Matrix4x4.hpp"
 #include "OpenGL.hpp"
 #include "Grid.hpp"
+#include "Rectangle.hpp"
 #include <vector>
 #include <random>
 
@@ -21,24 +22,26 @@ class TestHandler : public WindowEventHandler
     GLint _colorAttribute;
     GLint _textureCoordinateAttribute;
     Grid<uint8_t> _grid;
+    Point<int> _tileViewSize = {};
+    Point<float> _tileViewSpace = {};
+    Point<float> _tileViewCenter = {};
     std::vector<GLfloat> _vertexData;
     std::vector<uint8_t> _tiles;
-    std::vector<GLfloat> _vertices;
-    std::vector<GLfloat> _lights;
+    bool _logDump = false;
 
 public:
     TestHandler();
     virtual ~TestHandler();
 
-    virtual void OnOpen();
-    virtual void OnClose();
-    virtual void OnPrepareRender();
-    virtual void OnRender();
-    virtual void OnUpdate();
+    void OnOpen() override;
+    void OnClose() override;
+    void OnPrepareRender() override;
+    void OnRender() override;
+    void OnUpdate() override;
 
-    virtual void OnKeyDown(SDL_Keysym keysym);
+    void OnKeyDown(SDL_Keysym keysym) override;
 
-    virtual void OnResize(Sint32 width, Sint32 height);
+    void OnResize(Sint32 width, Sint32 height) override;
 };
 
 #endif
