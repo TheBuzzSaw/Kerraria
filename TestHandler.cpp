@@ -253,10 +253,8 @@ void TestHandler::OnClose()
 void TestHandler::OnPrepareRender()
 {
     _vertexData.clear();
-    Point<float> corner = _tileViewCenter - (_tileViewSpace / 2.0f);
-    Point<int> tileViewOffset = {
-        static_cast<int>(corner.x),
-        static_cast<int>(corner.y)};
+    auto halfSpace = _tileViewSpace / 2.0f;
+    auto tileViewOffset = (_tileViewCenter - halfSpace).Cast<int>();
 
     for (int i = 0; i < _tileViewSize.y; ++i)
     {
@@ -326,14 +324,17 @@ void TestHandler::OnPrepareRender()
     if (_logDump)
     {
         _logDump = false;
-
-        for (size_t i = 0; i < _vertexData.size(); i += 7)
-        {
-            Log() << _vertexData[i] << ", " << _vertexData[i + 1] << '\n';
-        }
+        Log() << halfSpace << '\n';
     }
 
-    _rotateMatrix = RotateZ(_rotation) * Translate(-8.0f, -8.0f, 0.0f);
+    
+    
+    _rotateMatrix =
+        RotateZ(_rotation) *
+        Translate(
+            -_tileViewCenter.x + tileViewOffset.x,
+            -_tileViewCenter.y + tileViewOffset.y,
+            0.0f);
     glLoadMatrixf(_rotateMatrix);
 }
 
@@ -342,27 +343,30 @@ void TestHandler::OnRender()
     glClear(GL_COLOR_BUFFER_BIT);
 
     constexpr auto Stride = sizeof(GLfloat) * 7;
+    auto data = _vertexData.data();
+    
     glVertexAttribPointer(
         _positionAttribute,
         2,
         GL_FLOAT,
         GL_FALSE,
         Stride,
-        _vertexData.data());
-    glVertexAttribPointer(
-        _colorAttribute,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        Stride,
-        _vertexData.data() + 4);
+        data);
     glVertexAttribPointer(
         _textureCoordinateAttribute,
         2,
         GL_FLOAT,
         GL_FALSE,
         Stride,
-        _vertexData.data() + 2);
+        data + 2);
+    glVertexAttribPointer(
+        _colorAttribute,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        Stride,
+        data + 4);
+    
     glDrawArrays(GL_TRIANGLES, 0, _vertexData.size() / 7);
 }
 
@@ -411,9 +415,7 @@ void TestHandler::OnResize(Sint32 width, Sint32 height)
         _tileViewSpace = {Diameter, Diameter / ratio};
     }
 
-    _tileViewSize = {
-            static_cast<int>(_tileViewSpace.x) + 2,
-            static_cast<int>(_tileViewSpace.y) + 2};
+    _tileViewSize = _tileViewSpace.Cast<int>() + Point<int>{2, 2};
     _projectionMatrix = Orthographic(Radius, ratio);
     glLoadMatrixf(_projectionMatrix);
     glMatrixMode(GL_MODELVIEW);

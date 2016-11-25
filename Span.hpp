@@ -21,6 +21,7 @@ template<typename T> struct Span2D
 
     T& operator()(int x, int y) { return data[y * width + x]; }
     const T& operator()(int x, int y) const { return data[y * width + x]; }
+    int Count() const { return width * height; }
 };
 
 #endif

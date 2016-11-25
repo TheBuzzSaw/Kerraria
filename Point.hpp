@@ -21,6 +21,13 @@ template<typename T> struct Point
         y -= other.y;
         return *this;
     }
+
+    template<typename T2> Point<T2> Cast() const
+    {
+        return {
+            static_cast<T2>(x),
+            static_cast<T2>(y)};
+    }
 };
 
 template<typename T> constexpr Point<T> operator+(Point<T> a, Point<T> b)

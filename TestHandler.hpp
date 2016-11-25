@@ -4,8 +4,8 @@
 #include "WindowEventHandler.hpp"
 #include "Matrix4x4.hpp"
 #include "OpenGL.hpp"
-#include "Grid.hpp"
 #include "Rectangle.hpp"
+#include "Span.hpp"
 #include <vector>
 #include <random>
 
@@ -21,7 +21,7 @@ class TestHandler : public WindowEventHandler
     GLint _positionAttribute;
     GLint _colorAttribute;
     GLint _textureCoordinateAttribute;
-    Grid<uint8_t> _grid;
+    Span2D<uint8_t> _grid;
     Point<int> _tileViewSize = {};
     Point<float> _tileViewSpace = {};
     Point<float> _tileViewCenter = {};
