@@ -220,7 +220,7 @@ TestHandler::TestHandler()
     glGenTextures(1, &_texture);
     glBindTexture(GL_TEXTURE_2D, _texture);
     SetParams(TexParams);
-    LoadTexture("../tiles_spritesheet.png");
+    LoadTexture("images/tiles.png");
     glDisable(GL_TEXTURE_2D);
 }
 
