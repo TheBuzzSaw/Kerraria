@@ -194,9 +194,17 @@ TestHandler::TestHandler()
         }
     }
 
+    uniform_int_distribution<int> d(0, 8);
+
     for (int i = 0; i < _grid.width; ++i)
     {
-        _grid(i, _grid.height / 2) = 0x87;
+        int size = d(_mt);
+        for (int j = 0; j < size; ++j)
+        {
+            _grid(i, _grid.height / 2 + j) = 0xc8;
+        }
+
+        _grid(i, _grid.height / 2 + size) = 0x87;
     }
 
     _program = LoadProgramFromFiles(
