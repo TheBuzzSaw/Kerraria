@@ -393,7 +393,7 @@ void TestHandler::OnRender()
 
 void TestHandler::OnUpdate()
 {
-    _tileViewCenter += _delta;
+    _tileViewCenter += _delta * _multiplier;
     _rotation -= (1.0f / 128.0f);
 }
 
@@ -415,6 +415,11 @@ void TestHandler::OnKeyDown(SDL_Keysym keysym)
                 flag ^ SDL_WINDOW_FULLSCREEN_DESKTOP);
             break;
         }
+        
+        case SDLK_LSHIFT:
+        case SDLK_RSHIFT:
+            _multiplier = 12.0f;
+            break;
 
         case SDLK_a:
         case SDLK_LEFT:
@@ -442,6 +447,11 @@ void TestHandler::OnKeyUp(SDL_Keysym keysym)
     WindowEventHandler::OnKeyUp(keysym);
     switch (keysym.sym)
     {
+        case SDLK_LSHIFT:
+        case SDLK_RSHIFT:
+            _multiplier = 1.0f;
+            break;
+        
         case SDLK_a:
         case SDLK_LEFT:
             if (_delta.x < 0.0f) _delta.x = 0.0f;

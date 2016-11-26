@@ -26,6 +26,7 @@ class TestHandler : public WindowEventHandler
     Point<float> _tileViewSpace = {};
     Point<float> _tileViewCenter = {};
     Point<float> _delta = {};
+    float _multiplier = 1.0f;
     std::vector<GLfloat> _vertexData;
     std::vector<uint8_t> _tiles;
     bool _logDump = false;
