@@ -393,7 +393,7 @@ void TestHandler::OnRender()
 
 void TestHandler::OnUpdate()
 {
-    _tileViewCenter += _delta * _multiplier;
+    if (_panAnchor.x < 0) _tileViewCenter += _delta * _multiplier;
     _rotation -= (1.0f / 128.0f);
 }
 
@@ -415,7 +415,7 @@ void TestHandler::OnKeyDown(SDL_Keysym keysym)
                 flag ^ SDL_WINDOW_FULLSCREEN_DESKTOP);
             break;
         }
-        
+
         case SDLK_LSHIFT:
         case SDLK_RSHIFT:
             _multiplier = 12.0f;
@@ -451,7 +451,7 @@ void TestHandler::OnKeyUp(SDL_Keysym keysym)
         case SDLK_RSHIFT:
             _multiplier = 1.0f;
             break;
-        
+
         case SDLK_a:
         case SDLK_LEFT:
             if (_delta.x < 0.0f) _delta.x = 0.0f;
@@ -471,10 +471,46 @@ void TestHandler::OnKeyUp(SDL_Keysym keysym)
     }
 }
 
+void TestHandler::OnMouseMove(SDL_MouseMotionEvent event)
+{
+    if (_panAnchor.x >= 0)
+    {
+        Point<int> mouse{event.x, event.y};
+        auto narrow = Min(_displaySize.x, _displaySize.y);
+        auto delta = (_panAnchor - mouse).Cast<float>() * 16.0f / float(narrow);
+        delta.y = -delta.y;
+        _tileViewCenter = _tileViewCenterAnchor + delta;
+    }
+}
+
+void TestHandler::OnMouseWheel(SDL_MouseWheelEvent event)
+{
+    (void)event;
+}
+
+void TestHandler::OnMouseButtonDown(SDL_MouseButtonEvent event)
+{
+    if (event.button == SDL_BUTTON_LEFT)
+    {
+        _panAnchor = {event.x, event.y};
+        _tileViewCenterAnchor = _tileViewCenter;
+    }
+}
+
+void TestHandler::OnMouseButtonUp(SDL_MouseButtonEvent event)
+{
+    if (event.button == SDL_BUTTON_LEFT)
+    {
+        _panAnchor = {-1, -1};
+    }
+}
+
 void TestHandler::OnResize(Sint32 width, Sint32 height)
 {
     constexpr float Radius = 8.0f;
     constexpr float Diameter = Radius * 2.0f;
+
+    _displaySize = {width, height};
 
     glMatrixMode(GL_PROJECTION);
     WindowEventHandler::OnResize(width, height);
