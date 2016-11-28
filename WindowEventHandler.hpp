@@ -15,6 +15,7 @@ class WindowEventHandler
 protected:
     void SetUpdatesPerSecond(int updatesPerSecond);
     inline SDL_Window* Window() { return _window; }
+    bool _logStats = false;
 
 public:
     WindowEventHandler();

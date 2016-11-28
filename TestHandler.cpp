@@ -217,7 +217,7 @@ TestHandler::TestHandler()
 #endif
 
     _matrixUniform = glGetUniformLocation(_program, "theMatrix");
-	_textureUniform = glGetUniformLocation(_program, "theTexture");
+    _textureUniform = glGetUniformLocation(_program, "theTexture");
     _positionAttribute = glGetAttribLocation(_program, "position");
     _colorAttribute = glGetAttribLocation(_program, "color");
     _textureCoordinateAttribute = glGetAttribLocation(_program, "textureCoordinates");
@@ -354,13 +354,13 @@ void TestHandler::OnPrepareRender()
             translation.x,
             translation.y,
             0.0f);
-    
-	glUniformMatrix4fv(
-		_matrixUniform,
-		1,
-		GL_FALSE,
-		_projectionMatrix * _rotateMatrix);
-	
+
+    glUniformMatrix4fv(
+        _matrixUniform,
+        1,
+        GL_FALSE,
+        _projectionMatrix * _rotateMatrix);
+
 
     if (_logDump)
     {
@@ -414,10 +414,15 @@ void TestHandler::OnKeyDown(SDL_Keysym keysym)
     WindowEventHandler::OnKeyDown(keysym);
     switch (keysym.sym)
     {
+        case SDLK_l:
+            _logStats = !_logStats;
+            break;
+
         case SDLK_BACKSLASH:
             //SDL_Delay(750);
             _logDump = true;
             break;
+
         case SDLK_F11:
         {
             auto flag = SDL_GetWindowFlags(
@@ -468,14 +473,17 @@ void TestHandler::OnKeyUp(SDL_Keysym keysym)
         case SDLK_LEFT:
             if (_delta.x < 0.0f) _delta.x = 0.0f;
             break;
+
         case SDLK_d:
         case SDLK_RIGHT:
             if (_delta.x > 0.0f) _delta.x = 0.0f;
             break;
+
         case SDLK_w:
         case SDLK_UP:
             if (_delta.y > 0.0f) _delta.y = 0.0f;
             break;
+
         case SDLK_s:
         case SDLK_DOWN:
             if (_delta.y < 0.0f) _delta.y = 0.0f;

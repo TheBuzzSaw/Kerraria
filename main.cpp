@@ -8,7 +8,7 @@
 #endif
 using namespace std;
 
-void MyCallback(
+static void MyCallback(
     GLenum source,
     GLenum type,
     GLuint id,
@@ -20,7 +20,13 @@ void MyCallback(
     if (msg && *msg) Log() << "[OpenGL] " << msg << '\n';
 }
 
-void RunWindow()
+static const char* GetString(GLenum name)
+{
+    auto text = (const char*)glGetString(name);
+    return text ? text : "(null)";
+}
+
+static void RunWindow()
 {
     ofstream fout("debug.txt", ofstream::binary);
     AddLogStream(cout);
@@ -69,21 +75,17 @@ void RunWindow()
 
     Log() << "SDL_GL_SetSwapInterval ";
     if (SDL_GL_SetSwapInterval(1))
-        Log() << "failed.\n";
+        Log() << "failed.";
     else
-        Log() << "succeeded.\n";
+        Log() << "succeeded.";
 
-    auto slv = (char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-    if (slv)
-    {
-        Log() << "Shading Language: "
-            << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION)
-            << '\n';
-    }
-    else
-    {
-        Log() << "no reported shading language\n";
-    }
+    Log()
+        << "\nOpenGL Vendor: " << GetString(GL_VENDOR)
+        << "\nOpenGL Renderer: " << GetString(GL_RENDERER)
+        << "\nOpenGL Version: " << GetString(GL_VERSION)
+        << "\nOpenGL Shading Language: "
+        << GetString(GL_SHADING_LANGUAGE_VERSION)
+        << '\n';
 
 #ifndef KerrariaES2
     Log() << "OpenGL debug context flag ";

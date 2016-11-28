@@ -56,10 +56,14 @@ void WindowEventHandler::Run(SDL_Window* window)
         assert(now >= lastSecond);
         if ((now - lastSecond) >= secondLength)
         {
-            Log() << prepareRenderCount << " calls to OnPrepareRender\n";
-            Log() << renderCount << " calls to OnRender\n";
-            Log() << sleepCount << " sleeps ("
-                << (sleepCount / _updatesPerSecond) << " sleeps per frame)\n";
+            if (_logStats)
+            {
+                Log() << prepareRenderCount << " calls to OnPrepareRender\n";
+                Log() << renderCount << " calls to OnRender\n";
+                Log() << sleepCount << " sleeps ("
+                    << (sleepCount / _updatesPerSecond)
+                    << " sleeps per frame)\n";
+            }
 
             prepareRenderCount = 0;
             renderCount = 0;
