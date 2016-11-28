@@ -208,10 +208,16 @@ TestHandler::TestHandler()
     }
 
     _program = LoadProgramFromFiles(
+#ifdef KerrariaES2
+        "es2.vertex.shader",
+        "es2.fragment.shader");
+#else
         "vertex.shader",
         "fragment.shader");
+#endif
 
-    _textureUniform = glGetUniformLocation(_program, "theTexture");
+    _matrixUniform = glGetUniformLocation(_program, "theMatrix");
+	_textureUniform = glGetUniformLocation(_program, "theTexture");
     _positionAttribute = glGetAttribLocation(_program, "position");
     _colorAttribute = glGetAttribLocation(_program, "color");
     _textureCoordinateAttribute = glGetAttribLocation(_program, "textureCoordinates");
@@ -348,7 +354,13 @@ void TestHandler::OnPrepareRender()
             translation.x,
             translation.y,
             0.0f);
-    glLoadMatrixf(_rotateMatrix);
+    
+	glUniformMatrix4fv(
+		_matrixUniform,
+		1,
+		GL_FALSE,
+		_projectionMatrix * _rotateMatrix);
+	
 
     if (_logDump)
     {
@@ -512,7 +524,6 @@ void TestHandler::OnResize(Sint32 width, Sint32 height)
 
     _displaySize = {width, height};
 
-    glMatrixMode(GL_PROJECTION);
     WindowEventHandler::OnResize(width, height);
     auto ratio = float(width) / float(height);
 
@@ -528,6 +539,4 @@ void TestHandler::OnResize(Sint32 width, Sint32 height)
     _tileViewSize = (_tileViewSpace.Cast<int>() + Point<int>{2, 2})
         .Restricted(1, _grid.width, 1, _grid.height);
     _projectionMatrix = Orthographic(Radius, ratio);
-    glLoadMatrixf(_projectionMatrix);
-    glMatrixMode(GL_MODELVIEW);
 }

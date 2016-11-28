@@ -1,5 +1,6 @@
 #version 120
 
+uniform mat4 theMatrix;
 attribute vec3 position;
 attribute vec3 color;
 attribute vec2 textureCoordinates;
@@ -10,6 +11,6 @@ void main()
 {
     _color = color;
     _textureCoordinates = textureCoordinates;
-    gl_Position = gl_ModelViewProjectionMatrix * vec4(position, 1.0);
+    gl_Position = theMatrix * vec4(position, 1.0);
 }
 

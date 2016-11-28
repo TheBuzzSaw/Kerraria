@@ -17,6 +17,7 @@ class TestHandler : public WindowEventHandler
     float _rotation = 0.0f;
     GLuint _texture;
     GLuint _program;
+	GLint _matrixUniform;
     GLint _textureUniform;
     GLint _positionAttribute;
     GLint _colorAttribute;

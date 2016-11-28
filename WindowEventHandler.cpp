@@ -24,8 +24,6 @@ void WindowEventHandler::SetUpdatesPerSecond(int updatesPerSecond)
 void WindowEventHandler::Run(SDL_Window* window)
 {
     _window = window;
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
     OnOpen();
 
     int w;
@@ -136,12 +134,6 @@ void WindowEventHandler::OnPrepareRender()
 void WindowEventHandler::OnRender()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    glBegin(GL_TRIANGLES);
-    glColor3f(0.0f, 1.0f, 1.0f);
-    glVertex3f(0.5f, 0.0f, 0.0f);
-    glVertex3f(0.0f, 0.5f, 0.0f);
-    glVertex3f(-0.5f, 0.0f, 0.0f);
-    glEnd();
 }
 
 void WindowEventHandler::OnLoop()
