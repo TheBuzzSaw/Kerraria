@@ -30,7 +30,7 @@ static pair<float, float> GetTexCoords(int index)
         (offset + 70) / 1024.0f};
 }
 
-void LoadTexture(const char* path)
+static void LoadTexture(const char* path)
 {
     auto surface = IMG_Load(path);
 
@@ -75,7 +75,7 @@ void LoadTexture(const char* path)
     }
 }
 
-GLuint LoadShader(const char* source, GLenum shaderType)
+static GLuint LoadShader(const char* source, GLenum shaderType)
 {
     GLuint shader = glCreateShader(shaderType);
 
@@ -103,7 +103,7 @@ GLuint LoadShader(const char* source, GLenum shaderType)
     return shader;
 }
 
-GLuint LoadProgram(
+static GLuint LoadProgram(
     const char* vertexShaderSource,
     const char* fragmentShaderSource)
 {
@@ -142,7 +142,7 @@ GLuint LoadProgram(
     return program;
 }
 
-string FileToString(const char* path)
+static string FileToString(const char* path)
 {
     string result;
 
@@ -162,7 +162,7 @@ string FileToString(const char* path)
     return result;
 }
 
-GLuint LoadProgramFromFiles(
+static GLuint LoadProgramFromFiles(
     const char* vertexShaderPath,
     const char* fragmentShaderPath)
 {
@@ -497,7 +497,7 @@ void TestHandler::OnMouseMove(SDL_MouseMotionEvent event)
     {
         Point<int> mouse{event.x, event.y};
         auto narrow = Min(_displaySize.x, _displaySize.y);
-        auto delta = (_panAnchor - mouse).Cast<float>() * 16.0f / float(narrow);
+        auto delta = (_panAnchor - mouse).Cast<float>() * _belt / float(narrow);
         delta.y = -delta.y;
         _tileViewCenter = _tileViewCenterAnchor + delta;
     }
@@ -527,9 +527,6 @@ void TestHandler::OnMouseButtonUp(SDL_MouseButtonEvent event)
 
 void TestHandler::OnResize(Sint32 width, Sint32 height)
 {
-    constexpr float Radius = 8.0f;
-    constexpr float Diameter = Radius * 2.0f;
-
     _displaySize = {width, height};
 
     WindowEventHandler::OnResize(width, height);
@@ -537,14 +534,18 @@ void TestHandler::OnResize(Sint32 width, Sint32 height)
 
     if (width > height)
     {
-        _tileViewSpace = {Diameter * ratio, Diameter};
+        _belt = float(height) / 70.0f;
+        _tileViewSpace = {_belt * ratio, _belt};
     }
     else
     {
-        _tileViewSpace = {Diameter, Diameter / ratio};
+        _belt = float(width) / 70.0f;
+        _tileViewSpace = {_belt, _belt / ratio};
     }
+
+    auto radius = _belt / 2.0f;
 
     _tileViewSize = (_tileViewSpace.Cast<int>() + Point<int>{2, 2})
         .Restricted(1, _grid.width, 1, _grid.height);
-    _projectionMatrix = Orthographic(Radius, ratio);
+    _projectionMatrix = Orthographic(radius, ratio);
 }
