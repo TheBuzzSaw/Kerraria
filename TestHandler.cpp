@@ -294,11 +294,10 @@ void TestHandler::OnPrepareRender()
             auto tcs = GetTexCoords(xi);
             auto tct = GetTexCoords(yi);
 
-            auto x = static_cast<float>(j);
-            auto y = static_cast<float>(i);
-
             // I don't know how else to close the gaps.
-            constexpr float Lip = 1.0f / 512.0f;
+            constexpr float Lip = 1.0f / 1024.0f;
+            auto x = static_cast<float>(j) - Lip;
+            auto y = static_cast<float>(i) - Lip;
             auto xx = static_cast<float>(j + 1) + Lip;
             auto yy = static_cast<float>(i + 1) + Lip;
 
