@@ -296,6 +296,12 @@ void TestHandler::OnPrepareRender()
             auto x = static_cast<float>(j);
             auto y = static_cast<float>(i);
 
+            // I don't know how else to close the gaps.
+            auto xx = static_cast<float>(j + 1) + 1.0f / 256.0f;
+
+            // Why does the problem not manifest here?
+            auto yy = static_cast<float>(i + 1);
+
             _vertexData.push_back(x);
             _vertexData.push_back(y);
             _vertexData.push_back(tcs.first);
@@ -305,15 +311,15 @@ void TestHandler::OnPrepareRender()
             _vertexData.push_back(1.0f);
 
             _vertexData.push_back(x);
-            _vertexData.push_back(y + 1.0f);
+            _vertexData.push_back(yy);
             _vertexData.push_back(tcs.first);
             _vertexData.push_back(tct.first);
             _vertexData.push_back(1.0f);
             _vertexData.push_back(1.0f);
             _vertexData.push_back(1.0f);
 
-            _vertexData.push_back(x + 1.0f);
-            _vertexData.push_back(y + 1.0f);
+            _vertexData.push_back(xx);
+            _vertexData.push_back(yy);
             _vertexData.push_back(tcs.second);
             _vertexData.push_back(tct.first);
             _vertexData.push_back(1.0f);
@@ -328,15 +334,15 @@ void TestHandler::OnPrepareRender()
             _vertexData.push_back(1.0f);
             _vertexData.push_back(1.0f);
 
-            _vertexData.push_back(x + 1.0f);
-            _vertexData.push_back(y + 1.0f);
+            _vertexData.push_back(xx);
+            _vertexData.push_back(yy);
             _vertexData.push_back(tcs.second);
             _vertexData.push_back(tct.first);
             _vertexData.push_back(1.0f);
             _vertexData.push_back(1.0f);
             _vertexData.push_back(1.0f);
 
-            _vertexData.push_back(x + 1.0f);
+            _vertexData.push_back(xx);
             _vertexData.push_back(y);
             _vertexData.push_back(tcs.second);
             _vertexData.push_back(tct.second);
@@ -543,9 +549,7 @@ void TestHandler::OnResize(Sint32 width, Sint32 height)
         _tileViewSpace = {_belt, _belt / ratio};
     }
 
-    auto radius = _belt / 2.0f;
-
     _tileViewSize = (_tileViewSpace.Cast<int>() + Point<int>{2, 2})
         .Restricted(1, _grid.width, 1, _grid.height);
-    _projectionMatrix = Orthographic(radius, ratio);
+    _projectionMatrix = Orthographic(_belt / 2.0f, ratio);
 }
