@@ -7,6 +7,7 @@ using namespace std;
 
 static constexpr auto PixelFormat = SDL_PIXELFORMAT_ABGR8888;
 static constexpr float Delta = 1.0f / 8.0f;
+static constexpr float PixelsPerSpace = 70.0f;
 
 static const GLenum TexParams[] = {
     GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE,
@@ -297,7 +298,7 @@ void TestHandler::OnPrepareRender()
             auto y = static_cast<float>(i);
 
             // I don't know how else to close the gaps.
-            auto xx = static_cast<float>(j + 1) + 1.0f / 256.0f;
+            auto xx = static_cast<float>(j + 1);// + 1.0f / 256.0f;
 
             // Why does the problem not manifest here?
             auto yy = static_cast<float>(i + 1);
@@ -502,8 +503,7 @@ void TestHandler::OnMouseMove(SDL_MouseMotionEvent event)
     if (_panAnchor.x >= 0)
     {
         Point<int> mouse{event.x, event.y};
-        auto narrow = Min(_displaySize.x, _displaySize.y);
-        auto delta = (_panAnchor - mouse).Cast<float>() * _belt / float(narrow);
+        auto delta = (_panAnchor - mouse).Cast<float>() / PixelsPerSpace;
         delta.y = -delta.y;
         _tileViewCenter = _tileViewCenterAnchor + delta;
     }
@@ -536,20 +536,20 @@ void TestHandler::OnResize(Sint32 width, Sint32 height)
     _displaySize = {width, height};
 
     WindowEventHandler::OnResize(width, height);
-    auto ratio = float(width) / float(height);
-
-    if (width > height)
-    {
-        _belt = float(height) / 70.0f;
-        _tileViewSpace = {_belt * ratio, _belt};
-    }
-    else
-    {
-        _belt = float(width) / 70.0f;
-        _tileViewSpace = {_belt, _belt / ratio};
-    }
+    _tileViewSpace = {
+        float(width) / PixelsPerSpace,
+        float(height) / PixelsPerSpace};
 
     _tileViewSize = (_tileViewSpace.Cast<int>() + Point<int>{2, 2})
         .Restricted(1, _grid.width, 1, _grid.height);
-    _projectionMatrix = Orthographic(_belt / 2.0f, ratio);
+
+    auto halfSpace = _tileViewSpace / 2.0f;
+    _projectionMatrix = Orthographic(
+        -halfSpace.x,
+        halfSpace.x,
+        -halfSpace.y,
+        halfSpace.y,
+        1.0f,
+        -1.0f);
 }
+

@@ -15,7 +15,6 @@ class TestHandler : public WindowEventHandler
     Matrix4x4F _projectionMatrix;
     Matrix4x4F _rotateMatrix;
     float _rotation = 0.0f;
-    float _belt = 1.0f; // The narrow size of the display (usually the height).
     GLuint _texture;
     GLuint _program;
 	GLint _matrixUniform;

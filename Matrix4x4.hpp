@@ -271,7 +271,7 @@ template<typename T> Matrix4x4<T> Orthographic(
         T(2) / rml,0,0,0,
         0,T(2) / tmb,0,0,
         0,0,T(-2) / fmn,0,
-        rpl / rml, tpb / tmb, fpn / fmn, 1}};
+        -rpl / rml, -tpb / tmb, -fpn / fmn, T(1)}};
 }
 
 template<typename T> Matrix4x4<T> Orthographic(T range, T ratio)
