@@ -298,10 +298,9 @@ void TestHandler::OnPrepareRender()
             auto y = static_cast<float>(i);
 
             // I don't know how else to close the gaps.
-            auto xx = static_cast<float>(j + 1);// + 1.0f / 256.0f;
-
-            // Why does the problem not manifest here?
-            auto yy = static_cast<float>(i + 1);
+            constexpr float Lip = 1.0f / 512.0f;
+            auto xx = static_cast<float>(j + 1) + Lip;
+            auto yy = static_cast<float>(i + 1) + Lip;
 
             _vertexData.push_back(x);
             _vertexData.push_back(y);
