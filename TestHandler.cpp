@@ -443,6 +443,11 @@ void TestHandler::OnKeyDown(SDL_Keysym keysym)
             _multiplier = 12.0f;
             break;
 
+        case SDLK_LCTRL:
+        case SDLK_RCTRL:
+            _multiplier = 0.25f;
+            break;
+
         case SDLK_a:
         case SDLK_LEFT:
             _delta.x = -Delta;
@@ -471,7 +476,12 @@ void TestHandler::OnKeyUp(SDL_Keysym keysym)
     {
         case SDLK_LSHIFT:
         case SDLK_RSHIFT:
-            _multiplier = 1.0f;
+            if (_multiplier > 1.0f) _multiplier = 1.0f;
+            break;
+
+        case SDLK_LCTRL:
+        case SDLK_RCTRL:
+            if (_multiplier < 1.0f) _multiplier = 1.0f;
             break;
 
         case SDLK_a:
