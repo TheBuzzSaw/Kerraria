@@ -529,6 +529,25 @@ void TestHandler::OnMouseButtonDown(SDL_MouseButtonEvent event)
         _panAnchor = {event.x, event.y};
         _tileViewCenterAnchor = _tileViewCenter;
     }
+    else if (event.button == SDL_BUTTON_RIGHT)
+    {
+        Point<int> position = {event.x, _displaySize.y - 1 - event.y};
+        auto halfSpace = _tileViewSpace / 2.0f;
+        auto spaceOffset = position.Cast<float>() / PixelsPerSpace - halfSpace;
+        auto worldCoordinates = (_tileViewCenter + spaceOffset).Cast<int>();
+        
+        if (worldCoordinates.x >= 0 &&
+            worldCoordinates.x < _grid.width &&
+            worldCoordinates.y >= 0 &&
+            worldCoordinates.y < _grid.height)
+        {
+            _grid(worldCoordinates.x, worldCoordinates.y) = 0x41;
+        }
+        else
+        {
+            Log() << "out of bounds -- " << worldCoordinates << '\n';
+        }
+    }
 }
 
 void TestHandler::OnMouseButtonUp(SDL_MouseButtonEvent event)
