@@ -3,6 +3,7 @@
 #include <SDL_image.h>
 #include <fstream>
 #include <sstream>
+#include <ctime>
 using namespace std;
 
 static constexpr auto PixelFormat = SDL_PIXELFORMAT_ABGR8888;
@@ -176,6 +177,7 @@ static GLuint LoadProgramFromFiles(
 }
 
 TestHandler::TestHandler()
+    : _mt(time(nullptr))
 {
     _vertexData.reserve(1024);
 
@@ -187,25 +189,33 @@ TestHandler::TestHandler()
         static_cast<float>(_grid.major / 2),
         static_cast<float>(_grid.minor / 2)};
 
-    for (int i = 0; i < _grid.minor / 2; ++i)
+    normal_distribution<double> slopeDistribution(0.0, 2.0);
+    double previousSlope = 0.0;
+    double previousHeight = double(_grid.minor) / 2.0;
+    auto middle = previousHeight;
+    int step = 8;
+    
+    for (int i = 0; i < _grid.major; i += step)
     {
-        for (int j = 0; j < _grid.major; ++j)
+        double randomSlope = slopeDistribution(_mt) +
+            (previousHeight > middle ? -1.0 : 1.0);
+        double slope = (randomSlope + previousSlope) / 2.0;
+        double height = slope * double(step) + previousHeight;
+        
+        for (int j = 0; j < step; ++j)
         {
-            _grid(j, i) = 0xc8;
+            double midHeight = double(j) * slope + previousHeight;
+            auto n = min<int>(_grid.minor, int(midHeight));
+            n = max<int>(n, 1);
+            
+            for (int k = 0; k < n; ++k)
+            {
+                _grid(i + j, n - 1 - k) = k ? 0xc8 : 0x87;
+            }
         }
-    }
-
-    uniform_int_distribution<int> d(0, 8);
-
-    for (int i = 0; i < _grid.major; ++i)
-    {
-        int size = d(_mt);
-        for (int j = 0; j < size; ++j)
-        {
-            _grid(i, _grid.minor / 2 + j) = 0xc8;
-        }
-
-        _grid(i, _grid.minor / 2 + size) = 0x87;
+        
+        previousSlope = slope;
+        previousHeight = height;
     }
 
     _program = LoadProgramFromFiles(
