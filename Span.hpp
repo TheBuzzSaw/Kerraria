@@ -16,12 +16,20 @@ template<typename T> struct Span
 template<typename T> struct Span2D
 {
     T* data;
-    int width;
-    int height;
+    int major;
+    int minor;
 
-    T& operator()(int x, int y) { return data[y * width + x]; }
-    const T& operator()(int x, int y) const { return data[y * width + x]; }
-    int Count() const { return width * height; }
+    T& operator()(int majorIndex, int minorIndex)
+    {
+        return data[majorIndex * minor + minorIndex];
+    }
+
+    const T& operator()(int majorIndex, int minorIndex) const
+    {
+        return data[majorIndex * minor + minorIndex];
+    }
+
+    int Count() const { return minor * major; }
 };
 
 #endif

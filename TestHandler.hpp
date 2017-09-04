@@ -22,7 +22,7 @@ class TestHandler : public WindowEventHandler
     GLint _positionAttribute;
     GLint _colorAttribute;
     GLint _textureCoordinateAttribute;
-    Span2D<uint8_t> _grid;
+    Span2D<uint8_t> _grid; // column major
     Point<int> _panAnchor = {-1, -1};
     Point<int> _displaySize = {};
     Point<int> _tileViewSize = {};

@@ -179,17 +179,17 @@ TestHandler::TestHandler()
 {
     _vertexData.reserve(1024);
 
-    _grid.width = 256;
-    _grid.height = 64;
+    _grid.minor = 128;
+    _grid.major = 256;
     _tiles.resize(_grid.Count(), 0xff);
     _grid.data = _tiles.data();
     _tileViewCenter = {
-        static_cast<float>(_grid.width / 2),
-        static_cast<float>(_grid.height / 2)};
+        static_cast<float>(_grid.major / 2),
+        static_cast<float>(_grid.minor / 2)};
 
-    for (int i = 0; i < _grid.height / 2; ++i)
+    for (int i = 0; i < _grid.minor / 2; ++i)
     {
-        for (int j = 0; j < _grid.width; ++j)
+        for (int j = 0; j < _grid.major; ++j)
         {
             _grid(j, i) = 0xc8;
         }
@@ -197,15 +197,15 @@ TestHandler::TestHandler()
 
     uniform_int_distribution<int> d(0, 8);
 
-    for (int i = 0; i < _grid.width; ++i)
+    for (int i = 0; i < _grid.major; ++i)
     {
         int size = d(_mt);
         for (int j = 0; j < size; ++j)
         {
-            _grid(i, _grid.height / 2 + j) = 0xc8;
+            _grid(i, _grid.minor / 2 + j) = 0xc8;
         }
 
-        _grid(i, _grid.height / 2 + size) = 0x87;
+        _grid(i, _grid.minor / 2 + size) = 0x87;
     }
 
     _program = LoadProgramFromFiles(
@@ -271,20 +271,20 @@ void TestHandler::OnPrepareRender()
     _vertexData.clear();
     auto halfSpace = _tileViewSpace / 2.0f;
     Point<float> center = {
-        Restricted(_tileViewCenter.x, halfSpace.x, _grid.width - halfSpace.x),
-        Restricted(_tileViewCenter.y, halfSpace.y, _grid.height - halfSpace.y)};
+        Restricted(_tileViewCenter.x, halfSpace.x, _grid.major - halfSpace.x),
+        Restricted(_tileViewCenter.y, halfSpace.y, _grid.minor - halfSpace.y)};
 
     auto tileViewOffset = (center - halfSpace)
         .Cast<int>()
         .Restricted(
             0,
-            _grid.width - _tileViewSize.x,
+            _grid.major - _tileViewSize.x,
             0,
-            _grid.height - _tileViewSize.y);
+            _grid.minor - _tileViewSize.y);
 
-    for (int i = 0; i < _tileViewSize.y; ++i)
+    for (int j = 0; j < _tileViewSize.x; ++j)
     {
-        for (int j = 0; j < _tileViewSize.x; ++j)
+        for (int i = 0; i < _tileViewSize.y; ++i)
         {
             uint8_t tile = _grid(tileViewOffset.x + j, tileViewOffset.y + i);
             if (tile == 0xff) continue;
@@ -537,9 +537,9 @@ void TestHandler::OnMouseButtonDown(SDL_MouseButtonEvent event)
         auto worldCoordinates = (_tileViewCenter + spaceOffset).Cast<int>();
         
         if (worldCoordinates.x >= 0 &&
-            worldCoordinates.x < _grid.width &&
+            worldCoordinates.x < _grid.major &&
             worldCoordinates.y >= 0 &&
-            worldCoordinates.y < _grid.height)
+            worldCoordinates.y < _grid.minor)
         {
             _grid(worldCoordinates.x, worldCoordinates.y) = 0x41;
         }
@@ -568,7 +568,7 @@ void TestHandler::OnResize(Sint32 width, Sint32 height)
         float(height) / PixelsPerSpace};
 
     _tileViewSize = (_tileViewSpace.Cast<int>() + Point<int>{2, 2})
-        .Restricted(1, _grid.width, 1, _grid.height);
+        .Restricted(1, _grid.major, 1, _grid.minor);
 
     auto halfSpace = _tileViewSpace / 2.0f;
     _projectionMatrix = Orthographic(
