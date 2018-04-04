@@ -25,11 +25,12 @@ static void SetParams(const GLenum* params)
 
 static pair<float, float> GetTexCoords(int index)
 {
-    int offset = index * 72;
+    //int offset = index * 72;
+    int offset = index * 64;
 
     return {
         offset / 1024.0f,
-        (offset + 70) / 1024.0f};
+        (offset + 64) / 1024.0f};
 }
 
 static void LoadTexture(const char* path)
@@ -194,6 +195,9 @@ TestHandler::TestHandler()
     double previousHeight = double(_grid.minor) / 2.0;
     auto middle = previousHeight;
     int step = 8;
+
+    uniform_int_distribution<Uint8> grassTopDist(0, 2);
+    uniform_int_distribution<Uint8> stoneDist(0x10, 0x13);
     
     for (int i = 0; i < _grid.major; i += step)
     {
@@ -210,7 +214,7 @@ TestHandler::TestHandler()
             
             for (int k = 0; k < n; ++k)
             {
-                _grid(i + j, n - 1 - k) = k ? 0xc8 : 0x87;
+                _grid(i + j, n - 1 - k) = k ? stoneDist(_mt) : grassTopDist(_mt);
             }
         }
         
@@ -237,7 +241,7 @@ TestHandler::TestHandler()
     glGenTextures(1, &_texture);
     glBindTexture(GL_TEXTURE_2D, _texture);
     SetParams(TexParams);
-    LoadTexture("images/tiles.png");
+    LoadTexture("images/sheet.png");
     glDisable(GL_TEXTURE_2D);
 }
 
