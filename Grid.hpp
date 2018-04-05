@@ -6,19 +6,14 @@
 #include <random>
 #include "Point.hpp"
 
-class Grid
+constexpr uint16_t NoTile = 0xffff;
+
+struct Grid
 {
-    std::vector<uint16_t> _tiles;
-    Point<int> _size = {};
-
-public:
-    Grid() = default;
-    Grid(Grid&&) = default;
-    Grid(const Grid&) = default;
-    ~Grid() = default;
-
-    Grid& operator=(Grid&&) = default;
-    Grid& operator=(const Grid&) = default;
+    std::vector<uint16_t> tiles;
+    Point<int> size = {};
 };
+
+Grid GenerateSimple(Point<int> size, std::mt19937& mt);
 
 #endif

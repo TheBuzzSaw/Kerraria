@@ -11,11 +11,15 @@ else
 	DEBUG_LDFLAGS += -fsanitize=address
 	LDLIBS += -lSDL2main -lSDL2 -lSDL2_image -lGL -lGLEW
 endif
+
 OBJECTS = \
 	main.o \
 	Debug.o \
 	TestHandler.o \
-	WindowEventHandler.o
+	WindowEventHandler.o \
+	Grid.o \
+	Renderer.o \
+	RenderGridBuffer.o
 
 all : debug
 
@@ -37,6 +41,15 @@ TestHandler.o : TestHandler.cpp TestHandler.hpp
 
 WindowEventHandler.o : WindowEventHandler.cpp WindowEventHandler.hpp
 	$(CXX) $(CXXFLAGS) -c WindowEventHandler.cpp
+
+Grid.o : Grid.cpp Grid.hpp
+	$(CXX) $(CXXFLAGS) -c Grid.cpp
+
+Renderer.o : Renderer.cpp Renderer.hpp
+	$(CXX) $(CXXFLAGS) -c Renderer.cpp
+
+RenderGridBuffer.o : RenderGridBuffer.cpp RenderGridBuffer.hpp
+	$(CXX) $(CXXFLAGS) -c RenderGridBuffer.cpp
 
 $(TARGET) : $(OBJECTS)
 	$(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(LDLIBS)

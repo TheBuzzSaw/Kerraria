@@ -8,7 +8,7 @@ using namespace std;
 
 static constexpr auto PixelFormat = SDL_PIXELFORMAT_ABGR8888;
 static constexpr float Delta = 1.0f / 8.0f;
-static constexpr float PixelsPerSpace = 70.0f;
+static constexpr float PixelsPerSpace = 64.0f;
 
 static const GLenum TexParams[] = {
     GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE,
@@ -196,8 +196,8 @@ TestHandler::TestHandler()
     auto middle = previousHeight;
     int step = 8;
 
-    uniform_int_distribution<Uint8> grassTopDist(0, 2);
-    uniform_int_distribution<Uint8> stoneDist(0x10, 0x13);
+    uniform_int_distribution<Uint8> grassTopDist(1, 5);
+    uniform_int_distribution<Uint8> stoneDist(0x11, 0x15);
     
     for (int i = 0; i < _grid.major; i += step)
     {
