@@ -1,4 +1,4 @@
-CXXFLAGS += -std=c++11
+CXXFLAGS += -std=c++14
 DEBUG_CXXFLAGS += -g -Wall -Werror
 ifeq ($(OS),Windows_NT)
 	TARGET = kerraria.exe

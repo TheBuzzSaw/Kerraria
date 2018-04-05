@@ -1,5 +1,6 @@
 #include "TestHandler.hpp"
 #include "Debug.hpp"
+#include <memory>
 #include <iostream>
 #include <fstream>
 #include <SDL_image.h>
@@ -151,7 +152,9 @@ static void RunWindow()
     }
 #endif
 
-    TestHandler().Run(window);
+    auto th = make_unique<TestHandler>();
+    th->Run(window);
+    th.reset(nullptr);
 
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);
