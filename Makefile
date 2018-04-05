@@ -6,10 +6,10 @@ ifeq ($(OS),Windows_NT)
 	LDLIBS += -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lopengl32 -lglew32
 else
 	TARGET = kerraria.bin
-	CXXFLAGS += -I/usr/include/SDL2
+	CXXFLAGS += -I/usr/local/include/SDL2
 	DEBUG_CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 	DEBUG_LDFLAGS += -fsanitize=address
-	LDLIBS += -lSDL2main -lSDL2 -lSDL2_image -lGL -lGLEW
+	LDLIBS += -lSDL2main -lSDL2 -lSDL2_image -framework OpenGL
 endif
 
 OBJECTS = \

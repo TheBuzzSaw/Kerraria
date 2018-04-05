@@ -5,7 +5,7 @@
 //#include <SDL_opengles2.h>
 #include <GLES2/gl2.h>
 #else
-#include <GL/glew.h>
+#include <OpenGL/gl.h>
 #endif
 
 #endif

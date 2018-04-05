@@ -8,17 +8,17 @@
 #endif
 using namespace std;
 
-static void MyCallback(
-    GLenum source,
-    GLenum type,
-    GLuint id,
-    GLenum severity,
-    GLsizei length,
-    const GLchar* msg,
-    const void* data)
-{
-    if (msg && *msg) Log() << "[OpenGL] " << msg << '\n';
-}
+// static void MyCallback(
+//     GLenum source,
+//     GLenum type,
+//     GLuint id,
+//     GLenum severity,
+//     GLsizei length,
+//     const GLchar* msg,
+//     const void* data)
+// {
+//     if (msg && *msg) Log() << "[OpenGL] " << msg << '\n';
+// }
 
 static const char* GetString(GLenum name)
 {
@@ -118,9 +118,9 @@ static void RunWindow()
 
     auto context = SDL_GL_CreateContext(window);
 
-#ifndef KerrariaES2
-    glewInit();
-#endif
+// #ifndef KerrariaES2
+//    glewInit();
+// #endif
 
     Log() << "SDL_GL_SetSwapInterval ";
     if (SDL_GL_SetSwapInterval(1))
@@ -136,20 +136,20 @@ static void RunWindow()
         << GetString(GL_SHADING_LANGUAGE_VERSION)
         << '\n';
 
-#ifndef KerrariaES2
-    Log() << "OpenGL debug context flag ";
-    GLint v;
-    glGetIntegerv(GL_CONTEXT_FLAGS, &v);
-    if (v & GL_CONTEXT_FLAG_DEBUG_BIT)
-    {
-        Log() << "enabled\n";
-        glDebugMessageCallback((GLDEBUGPROC)MyCallback, nullptr);
-    }
-    else
-    {
-        Log() << "disabled\n";
-    }
-#endif
+// #ifndef KerrariaES2
+//     Log() << "OpenGL debug context flag ";
+//     GLint v;
+//     glGetIntegerv(GL_CONTEXT_FLAGS, &v);
+//     if (v & GL_CONTEXT_FLAG_DEBUG_BIT)
+//     {
+//         Log() << "enabled\n";
+//         glDebugMessageCallback((GLDEBUGPROC)MyCallback, nullptr);
+//     }
+//     else
+//     {
+//         Log() << "disabled\n";
+//     }
+// #endif
 
     TestHandler().Run(window);
 
