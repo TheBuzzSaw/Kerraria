@@ -3,26 +3,21 @@
 
 #include "WindowEventHandler.hpp"
 #include "Matrix4x4.hpp"
-#include "OpenGL.hpp"
 #include "Rectangle.hpp"
 #include "Span.hpp"
+#include "Renderer.hpp"
 #include <vector>
 #include <random>
 
 class TestHandler : public WindowEventHandler
 {
     std::mt19937 _mt;
+    Renderer _renderer;
+    RenderGridBuffer _buffer;
+    Grid _grid;
     Matrix4x4F _projectionMatrix;
     Matrix4x4F _rotateMatrix;
     float _rotation = 0.0f;
-    GLuint _texture;
-    GLuint _program;
-	GLint _matrixUniform;
-    GLint _textureUniform;
-    GLint _positionAttribute;
-    GLint _colorAttribute;
-    GLint _textureCoordinateAttribute;
-    Span2D<uint8_t> _grid; // column major
     Point<int> _panAnchor = {-1, -1};
     Point<int> _displaySize = {};
     Point<int> _tileViewSize = {};
@@ -31,8 +26,6 @@ class TestHandler : public WindowEventHandler
     Point<float> _tileViewCenterAnchor = {};
     Point<float> _delta = {};
     float _multiplier = 1.0f;
-    std::vector<GLfloat> _vertexData;
-    std::vector<uint8_t> _tiles;
     bool _logDump = false;
 
 public:

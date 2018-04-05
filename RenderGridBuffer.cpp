@@ -26,7 +26,7 @@ void RenderGridBuffer::Generate(const Grid& source, Point<int> start, Point<int>
     {
         for (int j = 0; j < size.y; ++j)
         {
-            uint8_t tile = span(start.x + i, start.y + j);
+            uint16_t tile = span(start.x + i, start.y + j);
             if (tile == NoTile) continue;
             int xi = tile & 0xf;
             int yi = (tile >> 4) & 0xf;

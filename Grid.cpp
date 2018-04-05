@@ -9,6 +9,7 @@ Grid GenerateSimple(Point<int> size, mt19937& mt)
     if (size.x < 1 || size.y < 1)
         return result;
     
+    result.size = size;
     Span2D<uint16_t> span;
     span.major = size.x;
     span.minor = size.y;
@@ -21,8 +22,8 @@ Grid GenerateSimple(Point<int> size, mt19937& mt)
     auto middle = previousHeight;
     int step = 8;
 
-    uniform_int_distribution<uint8_t> grassTopDist(0, 2);
-    uniform_int_distribution<uint8_t> stoneDist(0x10, 0x13);
+    uniform_int_distribution<uint8_t> grassTopDist(1, 5);
+    uniform_int_distribution<uint8_t> stoneDist(0x11, 0x15);
 
     for (int i = 0; i < span.major; i += step)
     {
